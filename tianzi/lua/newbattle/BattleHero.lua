@@ -160,42 +160,36 @@ function BattleHero:action(movestate,isloop)
 
     self.mount:getAnimation():play(movestate,-1,-1,isloop)
     self.body:getAnimation():play(movestate,-1,-1,isloop)
-    for i,soldier in ipairs(self.soldiers) do
-       
-           soldier:getAnimation():play(movestate,-1,-1,isloop)
-       
-    end
+     table.foreach(self.soldiers,function(i,soldier)
+                  soldier:getAnimation():play(movestate,-1,-1,isloop)
+                  end)      
 end
 
 --普通攻击1.2
 function BattleHero:attack(num)
     self.mount:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
     self.body:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
-    for i,soldier in ipairs(self.soldiers) do
-     
-           soldier:getAnimation():play("attack"..num,1000/self.herocfg.attackspeed,-1,0)
-        
-    end
+    table.foreach(self.soldiers,function(i,soldier)
+          soldier:getAnimation():play("attack"..num,1000/self.herocfg.attackspeed,-1,0)
+                                end)
 end
 
 --小技能
 function BattleHero:skill()
     self.mount:getAnimation():play("attack",-1,-1,0)
     self.body:getAnimation():play("skill1",-1,-1,0)
-    for i,soldier in ipairs(self.soldiers) do
-     
+    table.foreach(self.soldiers,function(i,soldier)
            soldier:getAnimation():play("attack1",-1,-1,0)
-       
-    end
+           end)     
 end
 
 --大招
 function BattleHero:bigskill()
     self.mount:getAnimation():play("attack",-1,-1,0)
     self.body:getAnimation():play("ult",-1,-1,0)
-    for i,soldier in ipairs(self.soldiers) do
+   table.foreach(self.soldiers,function(i,soldier)
            soldier:getAnimation():play("attack1",-1,-1,0)  
-    end
+           end)
     self.isInBigSkill = true
 end
 
@@ -207,7 +201,7 @@ function BattleHero:normalAttack()
       return
    end
 
-   if (not self.isattack) and self.qishi >= 3000 then
+   if (not self.isattack) and self.qishi >= 2300 then
        self:bigskill()
        self.qishi = 0
        return
