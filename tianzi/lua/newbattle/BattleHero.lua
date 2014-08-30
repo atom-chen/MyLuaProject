@@ -1,4 +1,20 @@
 
+
+function getHeroArmatureNameFromId(nType)
+    return string.format("hero%03d", nType)
+end
+
+function getSoldierArmatureName(nCorps)
+    return "soldat"..nCorps
+end
+
+HeroState = {
+    --空闲
+    FREE = 1,
+    --动作
+    ACTION = 2
+}
+
 --英雄类
 BattleHero = class("BattleHero",function()
    return CCLayerColor:create(ccc4(100,0,0,100))
@@ -14,19 +30,57 @@ function BattleHero:ctor()
     self.soldiers = {}
     --是否是进攻方 
     self.isattack = false
+    --英雄配置
+    self.herocfg = nil
+    --战斗场景
+    self.battleScene = nil
+    --序号用来标记位置
+    self.index = 1
+    --攻击序号
+    self.attindex = 1
+    
+    --气势值
+    self.qishi = 0
      
     self.heroSize = SZ(K_SIZE*4, K_SIZE*2)
     self:setContentSize(self.heroSize)
 end
 
 --创建函数
-function BattleHero:create(heroid,mountid,soldierid,isattack)
+function BattleHero:create(herocfg,isattack,index,pos,battleScene)
     local myhero = BattleHero.new()
+    myhero.index = index
+    myhero.herocfg = herocfg
+    myhero.battleScene = battleScene
     myhero:setIsAttack(isattack)
-    myhero:createSoldier(soldierid)
-    myhero:createHeroAndMount(heroid,mountid)
-    myhero:action("stand", 1)
+    myhero:createSoldier(getSoldierArmatureName(herocfg.SoldierId))
+    myhero:createHeroAndMount(getHeroArmatureNameFromId(herocfg.HeroId),herocfg.Mount)
+    myhero:initPos(pos)
     return myhero
+end
+
+function BattleHero:initPos(pos)
+    local orginPos = ccp(0, 0)
+    if self.isattack then
+       orginPos = ccp(pos.x - 480, pos.y)
+    else
+       orginPos = ccp(pos.x + 480, pos.y)
+    end
+    self:setPosition(orginPos)
+    self:action("walk",1)
+    
+
+    local function walktopos()
+        --通知作战页面zb好了
+        self.battleScene:alreadyCallback(self.isattack)
+        self:action("stand",1)
+    end
+
+    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * 1000 / self.herocfg.movespeed, pos),
+                                                   CCCallFunc:create(walktopos))
+    self:runAction(walkac)
+
+   
 end
 
 --设置是否进攻方
@@ -55,6 +109,8 @@ function BattleHero:createHeroAndMount(heroid,mountid)
     self.mount = mount
 
     self:addChild(self.mount,2)
+
+    self.body:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
 end
 
 --设置士兵
@@ -85,10 +141,10 @@ end
 
 --普通攻击1.2
 function BattleHero:attack(num)
-    self.mount:getAnimation():play("attack",-1,-1,0)
-    self.body:getAnimation():play("attack",-1,-1,0)
+    self.mount:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
+    self.body:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
     for i,soldier in ipairs(self.soldiers) do
-        soldier:getAnimation():play("attack"..num,-1,-1,0)    
+        soldier:getAnimation():play("attack"..num,1000/self.herocfg.attackspeed,-1,0)    
     end
 end
 
@@ -110,3 +166,52 @@ function BattleHero:bigskill()
     end
 end
 
+--攻击队列
+function BattleHero:normalAttack()
+   
+   --自动大招
+   if not self.isattack and self.qishi > MaxQishi then
+       self:bigskill()
+       self.qishi = 0
+       return
+   end
+
+   local cur = string.sub(self.herocfg.attackmode,self.attindex,self.attindex)
+   if cur == "1" then
+       self:attack(1)
+   elseif cur == "2" then
+       self:skill()
+   end
+   
+   self.attindex = self.attindex + 1
+   if self.attindex > string.len(self.herocfg.attackmode) then
+       self.attindex = 1
+   end
+
+end
+
+--动作回调
+function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
+   
+   --动作完成 
+   if moveevnettype == 1 or moveevnettype == 2 then
+       if movementid == "attack" or movementid == "skill1" then
+           --攻击增加气势
+           self.qishi = self.qishi + AttackQishiAdd
+           self:normalAttack()
+       elseif movementid == "ult" then
+           self:normalAttack()
+       end
+
+   end
+end
+
+--初始化计时器
+function BattleHero:initTimer()
+    self:scheduleUpdateWithPriorityLua(handler(self, self.update),10)
+end
+
+--计时器
+function BattleHero:update(dt)
+    print(self.index)
+end

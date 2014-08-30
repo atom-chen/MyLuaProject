@@ -1,34 +1,6 @@
 require "extern"
+require "newbattle.HeroDataConfig"
 require "newbattle.BattleHero"
-
---数据配置
-K_SIZE = 32
-K_WIDTH = 40
-K_HEIGHT = 40
-
-tHeroConfigL = {}
-tHeroConfigL[1] = {Id = 1, Type = 1, Corps = 1, Mount = "mount88001"}
-tHeroConfigL[2] = {Id = 2, Type = 2, Corps = 2, Mount = "mount88002"}
-tHeroConfigL[3] = {Id = 3, Type = 151, Corps = 3, Mount = "mount88004"}
-tHeroConfigL[4] = {Id = 4, Type = 153, Corps = 4, Mount = "mount88005"}
-tHeroConfigL[5] = {Id = 5, Type = 155, Corps = 5, Mount = "mount88006"}
-tHeroConfigL[6] = {Id = 6, Type = 177, Corps = 6, Mount = "mount88007"}
-tHeroConfigR = {}
-tHeroConfigR[1] = {Id = 1, Type = 1, Corps = 1, Mount = "mount88001"}
-tHeroConfigR[2] = {Id = 2, Type = 2, Corps = 2, Mount = "mount88002"}
-tHeroConfigR[3] = {Id = 3, Type = 151, Corps = 3, Mount = "mount88004"}
-tHeroConfigR[4] = {Id = 4, Type = 153, Corps = 4, Mount = "mount88005"}
-tHeroConfigR[5] = {Id = 5, Type = 155, Corps = 5, Mount = "mount88006"}
-tHeroConfigR[6] = {Id = 6, Type = 177, Corps = 6, Mount = "mount88007"}
-
-
-function getHeroArmatureNameFromId(nType)
-    return string.format("hero%03d", nType)
-end
-
-function getSoldierArmatureName(nCorps)
-    return "soldat"..nCorps
-end
 
 function handler(target, method)
     return function(...)
@@ -43,6 +15,12 @@ end)
 --初始化
 function NewBattleScene:ctor()
 	self.spBg = nil
+	self.battlelayer = nil
+	self.attacklist ={}
+	self.defendlist ={}
+	self.attackalreadyCount = 0
+	self.defendalreadyCount = 0
+	
     self:initBackground()
     self:registerScriptHandler(handler(self, self.execScript))
 end
@@ -124,15 +102,7 @@ function NewBattleScene:createLayer()
 		end
 	end
 	
-	-- local shu = CCLayerColor:create(ccc4(0,100,100,200))
-	-- shu:setContentSize(SZ(1, battleSize.height))
-	-- shu:setPosition(ccp(battleSize.width/2, 0))
-	-- battleLayer:addChild(shu , 0)
-
-	-- local heng = CCLayerColor:create(ccc4(100,0,100,200))
-	-- heng:setContentSize(SZ(battleSize.width, 1))
-	-- heng:setPosition(ccp(0, battleSize.height/2))
-	-- battleLayer:addChild(heng , 0)
+	self.battlelayer = battleLayer;
 end
 
 --创建按钮层
@@ -160,19 +130,52 @@ end
 --创建英雄
 function NewBattleScene:createHero()
 	
-	local hero1 = BattleHero:create(getHeroArmatureNameFromId(tHeroConfigL[1].Type),
-	                                tHeroConfigL[1].Mount, 
-	                                getSoldierArmatureName(tHeroConfigL[1].Corps), 
-	                                true)
-	hero1:setPosition(ccp(480, 320))
-	self:addChild(hero1)
+    --攻击列表
+    local AttackList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[155],HeroConfigs[177]}
+    --防守列表
+    local DefendList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[155],HeroConfigs[177]}
+    
+    --按照占值排序
+    local function sortfunc(a,b)
+    	return a.Siteid < b.Siteid
+    end 
 
-	local hero2 = BattleHero:create(getHeroArmatureNameFromId(tHeroConfigL[2].Type),
-	                                tHeroConfigL[2].Mount, 
-	                                getSoldierArmatureName(tHeroConfigL[2].Corps), 
-	                                false)
-	hero2:setPosition(ccp(600, 320))
-	self:addChild(hero2)
+    table.sort(AttackList,sortfunc)
+    table.sort(DefendList,sortfunc)
+    
+    local function createAttakHero(index,config)
+       local hero = BattleHero:create(config,true,index,SmallGrid[6-index+1],self)
+	   self.battlelayer:addChild(hero)
+	   self.attacklist[index] = hero
+    end
+    
+    local function createDefendHero(index,config)
+       local hero = BattleHero:create(config,false,index,SmallGrid[6+index],self)
+	   self.battlelayer:addChild(hero)
+	   self.defendlist[index] = hero
+    end 
+    
+    table.foreach(AttackList,createAttakHero)
+    table.foreach(DefendList,createDefendHero)  
+
+end
+
+function NewBattleScene:alreadyCallback(isAttack)
+     
+     if isAttack then
+     	self.attackalreadyCount = self.attackalreadyCount + 1
+     else
+     	self.defendalreadyCount = self.defendalreadyCount + 1
+     end
+     
+     local function initTimer(index,hero)
+          hero:initTimer()
+     end
+
+     if self.attackalreadyCount == table.getn(self.attacklist)  and  self.defendalreadyCount ==  table.getn(self.defendlist) then
+         table.foreach(self.attacklist,initTimer)
+         table.foreach(self.defendlist,initTimer)
+     end
 
 end
 
