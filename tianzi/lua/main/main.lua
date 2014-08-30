@@ -1,0 +1,6 @@
+require("main.MainScene")
+require("main.MapLayer")
+require("main.MainTop")
+require("main.ChatBox")
+require("main.ChatUI")
+require("main.Text")
