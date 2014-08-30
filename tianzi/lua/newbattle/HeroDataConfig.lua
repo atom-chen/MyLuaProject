@@ -4,9 +4,9 @@ K_WIDTH = 40
 K_HEIGHT = 40
 K_HSPACE = 60
 --攻击气势增加
-AttackQishiAdd =  100
+AttackQishiAdd =  300
 --被攻击气势增加
-BeAttackQishiAdd = 50
+BeAttackQishiAdd = 150
 --杀敌气势增加
 KillQishiAdd = 300
 

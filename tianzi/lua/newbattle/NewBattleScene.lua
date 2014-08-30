@@ -20,7 +20,11 @@ function NewBattleScene:ctor()
 	self.defendlist ={}
 	self.attackalreadyCount = 0
 	self.defendalreadyCount = 0
-	
+    --列表
+	self.gridlist = {}
+	self.isEnd = false
+    self.btnlist = {}
+
     self:initBackground()
     self:registerScriptHandler(handler(self, self.execScript))
 end
@@ -114,17 +118,25 @@ function NewBattleScene:createButtonLayer()
 	self:addChild(spBar, 0)
     
     for i=1,6 do
-     	local btnHero = Button.new(P("head/1.png"), P("head/1.png"), nil, handler(self, self.onButtonClick))
+     	local btnHero = Button.new(P("head/2.png"), P("head/1.png"), P("head/1.png"), handler(self, self.onButtonClick))
 		btnHero:getMenuItem():setTag(i)
 		btnHero:setPosition(ccp(WINSIZE.width*0.8/6*i+btnHero:getContentSize().width/2, -btnHero:getContentSize().height/3))
+		btnHero:setEnabled(false)
 		spBar:addChild(btnHero)
+        table.insert(self.btnlist,btnHero)
      end 
 
 end
 
 --按钮回调
 function NewBattleScene:onButtonClick(tag)
-    print("Button:"..tag.." pressed!")
+    local hero = self.attacklist[tag]
+    if hero and hero.state ~= HeroState.DEAD and hero.qishi >= MaxQishi then
+       hero:bigskill()
+       hero.qishi = 0 
+       self.btnlist[tag]:setEnabled(false)
+    end
+
 end
 
 --创建英雄
@@ -179,16 +191,22 @@ function NewBattleScene:alreadyCallback(isAttack)
 
 end
 
---todo 获得英雄位置
---在屏幕外走到位置
---全部走到位置开始
---英雄寻找目标
-  --找到目标?
-    --是
-      --是否在攻击范围内
-        --是
-          --开始攻击直到目标死去消失
-        --否
-          --走到攻击范围 
-    --否
-      --寻找方获得胜利
+function NewBattleScene:endGame(isattack)
+   
+   if not self.isEnd then
+	    local list = nil
+	    if isattack then
+	       list = self.attacklist
+	    else
+	       list = self.defendlist
+	    end
+	    
+	    table.foreach(list,function(i,hero)
+	         hero:unscheduleUpdate()
+	         hero:stopAllActions()
+	         hero:action("win",1)
+	    	end)
+	    self.isEnd = true
+	end 
+     
+end
