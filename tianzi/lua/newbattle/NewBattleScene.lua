@@ -145,7 +145,7 @@ function NewBattleScene:createHero()
     --攻击列表
     local AttackList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[155],HeroConfigs[177]}
     --防守列表
-    local DefendList = {HeroConfigs[151],HeroConfigs[151],HeroConfigs[151],HeroConfigs[153],HeroConfigs[153],HeroConfigs[153]}
+    local DefendList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[155],HeroConfigs[177]}
     
     --按照占值排序
     local function sortfunc(a,b)
