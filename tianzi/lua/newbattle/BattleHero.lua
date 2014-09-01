@@ -103,7 +103,7 @@ function BattleHero:initPos(pos)
         self:action("stand",1)
     end
 
-    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * 1000 / self.herocfg.movespeed, pos),
+    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * self.herocfg.movespeed/1000, pos),
                                                    CCCallFunc:create(walktopos))
     self:runAction(walkac)   
 end
@@ -167,10 +167,10 @@ end
 
 --普通攻击1.2
 function BattleHero:attack(num)
-    self.mount:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
-    self.body:getAnimation():play("attack",1000/self.herocfg.attackspeed,-1,0)
+    self.mount:getAnimation():play("attack",self.herocfg.attackspeed/1000,-1,0)
+    self.body:getAnimation():play("attack",self.herocfg.attackspeed/1000,-1,0)
     table.foreach(self.soldiers,function(i,soldier)
-          soldier:getAnimation():play("attack"..num,1000/self.herocfg.attackspeed,-1,0)
+          soldier:getAnimation():play("attack"..num,self.herocfg.attackspeed/1000,-1,0)
                                 end)
 end
 
@@ -432,7 +432,7 @@ function BattleHero:movetoNextGrid()
 
     local pos = ccp( de * K_WIDTH * 4, 0)
     self.state = HeroState.ACTION
-    local walkac = CCSequence:createWithTwoActions(CCMoveBy:create(4 * 1000 / self.herocfg.movespeed, pos),
+    local walkac = CCSequence:createWithTwoActions(CCMoveBy:create(4 *  self.herocfg.movespeed /1000 , pos),
                                                    CCCallFunc:create(movecallback))
     self:runAction(walkac)   
 
