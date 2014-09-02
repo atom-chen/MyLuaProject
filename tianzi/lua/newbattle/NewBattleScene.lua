@@ -187,6 +187,7 @@ function NewBattleScene:alreadyCallback(isAttack)
 
 end
 
+--结束游戏
 function NewBattleScene:endGame(isattack)
    
    if not self.isEnd then
@@ -206,3 +207,91 @@ function NewBattleScene:endGame(isattack)
 	end 
      
 end
+
+function NewBattleScene:pause()
+    
+    local function pausehero(i,hero)
+    	hero:actionPause()
+    end
+    table.foreach(self.attacklist,pausehero)
+    table.foreach(self.defendlist,pausehero)
+end
+
+function NewBattleScene:resume()
+	local function resumehero(i,hero)
+    	hero:actionResume()
+    end
+    table.foreach(self.attacklist,resumehero)
+    table.foreach(self.defendlist,resumehero)
+end
+
+--大招特效
+function NewBattleScene:bigSkillEffect(heroid,func)
+    
+    self:pause()
+    local layer = CCLayer:create()
+    self:addChild(layer,100)
+
+    local bg = CCSprite:create(P("skill/bg1.png"))
+    layer:addChild(bg)
+    bg:setPosition(ccp(WINSIZE.width/2, WINSIZE.height*0.4))
+
+    local animFrames = CCArray:create()
+	for i = 1, 2, 1 do
+		local texture = CCTextureCache:sharedTextureCache():addImage(P(string.format("skill/bg%d.png", i)))
+		local txSize = texture:getContentSize()
+		local frame = CCSpriteFrame:createWithTexture(texture, CCRectMake(0, 0, txSize.width, txSize.height))
+		animFrames:addObject(frame)
+	end
+
+    local animation = CCAnimation:createWithSpriteFrames(animFrames, 0.15)
+	bg:runAction(CCRepeatForever:create(CCAnimate:create(animation)))
+	local heropic = nil
+	if heroid % 2 == 0 then
+		heropic = P("skill/hero2.png")
+	else
+		heropic = P("skill/hero1.png")
+	end
+    
+    local heroCard = CCSprite:create(heropic)
+    layer:addChild(heroCard)
+    heroCard:setAnchorPoint(ccp(0, 0))
+	heroCard:setPosition(ccp(-heroCard:getContentSize().width, bg:getPositionY() - bg:getContentSize().height/2))
+
+	local name = nil
+	if heroid % 2 == 0 then
+		name = CCSprite:create(P("skill/yjdq.png")) 
+	else
+		name = CCSprite:create(P("skill/jsmr.png"))
+	end
+    layer:addChild(name)
+    name:setAnchorPoint(ccp(0, 0))
+	name:setPosition(ccp(WINSIZE.width*0.42, bg:getPositionY() + bg:getContentSize().height/2))
+	name:setVisible(false)
+	name:setScale(10)
+
+    local action = CCMoveTo:create(0.3, ccp(-SX(5), heroCard:getPositionY()))
+
+    local function cleanAndPlayBigSkill()
+		self:removeChild(layer, true)
+		self:resume()
+		func()
+	end
+  
+    local function nameAction()
+		local spawn = CCSpawn:createWithTwoActions(CCFadeIn:create(0.3), CCScaleTo:create(0.2, 1))
+        local arr = CCArray:create()
+        arr:addObject(CCDelayTime:create(0.1))
+        arr:addObject(CCShow:create())
+        arr:addObject(spawn)
+        arr:addObject(CCCallFunc:create(cleanAndPlayBigSkill))
+        local seq = CCSequence:create(arr)
+		name:runAction(seq)
+	end
+
+    heroCard:runAction(CCSequence:createWithTwoActions(action, CCCallFunc:create(nameAction)))
+end
+
+
+
+

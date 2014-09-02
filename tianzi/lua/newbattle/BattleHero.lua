@@ -19,7 +19,8 @@ HeroState = {
 
 --英雄类
 BattleHero = class("BattleHero",function()
-   return CCLayerColor:create(ccc4(100,0,0,100))
+   --return CCLayerColor:create(ccc4(100,0,0,100))
+   return CCLayer:create()
 end)
 
 --构造函数
@@ -40,6 +41,9 @@ function BattleHero:ctor()
   self.index = 1
   --按钮
   self.btn = nil
+
+  self.hpbg = nil
+  self.hpbar = nil
      
   self.heroSize = SZ(K_SIZE*4, K_SIZE*2)
   self:setContentSize(self.heroSize)
@@ -55,6 +59,7 @@ function BattleHero:create(herocfg,isattack,index,pos,battleScene)
     myhero:createSoldier(getSoldierArmatureName(herocfg.SoldierId))
     myhero:createHeroAndMount(getHeroArmatureNameFromId(herocfg.HeroId),herocfg.Mount)
     myhero:initPos(pos)
+    myhero:createHpbar()
     return myhero
 end
 
@@ -78,6 +83,9 @@ function BattleHero:initState(herocfg)
     self.gridindex = 0
 
     self.isInBigSkill = false
+    
+    self.isBeginToDie = false
+
     
 end
 
@@ -187,12 +195,21 @@ end
 
 --大招
 function BattleHero:bigskill()
-    self.mount:getAnimation():play("attack",-1,-1,0)
-    self.body:getAnimation():play("ult",-1,-1,0)
-   table.foreach(self.soldiers,function(i,soldier)
+    
+    if not self:isCanAttack() then
+        return
+    end 
+
+    local function func()
+       self.mount:getAnimation():play("attack",-1,-1,0)
+       self.body:getAnimation():play("ult",-1,-1,0)
+       table.foreach(self.soldiers,function(i,soldier)
            soldier:getAnimation():play("attack1",-1,-1,0)  
            end)
+    end
+
     self.isInBigSkill = true
+    self.battleScene:bigSkillEffect(self.herocfg.HeroId,func)    
 end
 
 --攻击队列
@@ -282,6 +299,8 @@ function BattleHero:subHp(attackvalue)
      if self.btn then
         self.btn:setHp(self.hp / self.herocfg.hp * 100)
      end
+     self:setHpBarValue(self.hp / self.herocfg.hp * 100)
+     self:createBeAttackLable(-attackvalue)
      
      local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10)
      self:subSoldier(num) 
@@ -289,9 +308,11 @@ function BattleHero:subHp(attackvalue)
      self:addQishi(BeAttackQishiAdd)
      if self.hp <= 0 then
         isDead = true
-        self.state = HeroState.DEAD
-        self:action("dead",0)
-        self.battleScene.gridlist[self.gridindex] = nil
+        if self.status ~=  HeroState.DEAD then
+           self.state = HeroState.DEAD
+           self.isBeginToDie = true
+        end
+        
      end
      return isDead
 end
@@ -336,9 +357,9 @@ end
 --计时器
 function BattleHero:update(dt)
     
-    if self.state == HeroState.FREE then
-        self:findTarget()
-    elseif self.state == HeroState.DEAD then
+    if self.isBeginToDie then
+        self:action("dead",0)
+        self.battleScene.gridlist[self.gridindex] = nil
         if self.isattack then
             self.battleScene.attacklist[self.index] = nil
             self.battleScene.attackalreadyCount = self.battleScene.attackalreadyCount - 1
@@ -346,7 +367,14 @@ function BattleHero:update(dt)
             self.battleScene.defendlist[self.index] = nil
             self.battleScene.defendalreadyCount = self.battleScene.defendalreadyCount - 1
         end
-        self:unscheduleUpdate()
+       self.isBeginToDie = false
+       self.state = HeroState.DEAD
+       self:unscheduleUpdate()
+       return
+    end
+
+    if self.state == HeroState.FREE then
+        self:findTarget()    
     end
 end
 
@@ -450,7 +478,7 @@ end
 --是否能攻击
 function BattleHero:isCanAttack()
     
-    if self.state == HeroState.DEAD then
+    if self.state == HeroState.DEAD or self.isBeginToDie or self.hp <= 0 then
        return false
     end
     local result = true
@@ -469,4 +497,98 @@ function BattleHero:onBtnClick(tag,herobtn)
      self.qishi = 0
      herobtn:setActive(false)
      herobtn:setQishi(0)
+end
+
+
+--添加血条
+function BattleHero:createHpbar()
+     local bgpic  = P("herobattle/bg_small.png")
+     local barpic = P("herobattle/hp1_small.png")
+     if not self.isattack then
+        barpic =  P("herobattle/hp2_small.png")
+     end
+
+     local hpbg = CCSprite:create(bgpic)
+     self:addChild(hpbg,10)
+     
+     local hpbarsp = CCSprite:create(barpic)
+     local hpbar   = CCProgressTimer:create(hpbarsp)
+     hpbar:setType(1)
+     hpbar:setMidpoint(ccp(0, 0))
+     hpbar:setBarChangeRate(ccp(1, 0))
+     hpbar:setPercentage(100)
+     hpbar:setAnchorPoint(ccp(0.5, 0.5))
+     self:addChild(hpbar,11)
+     
+     local pos = ccp(K_SIZE*1, self.heroSize.height + 70)
+
+     hpbg:setPosition(pos)
+     hpbar:setPosition(pos)
+
+     hpbg:setVisible(false)
+     hpbar:setVisible(false)
+
+     self.hpbg = hpbg
+     self.hpbar = hpbar
+
+end
+
+--设置人物血量
+function BattleHero:setHpBarValue(value)
+     self.hpbg:setVisible(true)
+     self.hpbar:setVisible(true)
+     if value < 0 then
+        value = 0
+     end
+     self.hpbar:setPercentage(value)
+end
+
+--设置人物扣血
+function BattleHero:createBeAttackLable(value)
+
+     local label = nil
+     if value >= 0 then
+        label = CCLabelBMFont:create(string.format("%+d",value),"fonts/greenfont.fnt")
+      else
+        label = CCLabelBMFont:create(string.format("%+d",value),"fonts/redfont.fnt")
+     end   
+     self:addChild(label,100)
+     if self.isattack then
+        label:setScaleX(-1)
+     end
+     label:setPosition(ccp(K_SIZE*1, self.heroSize.height + 90))
+
+     local function callback(item)
+         self:removeChild(item, true)
+     end
+     
+
+     local arr = CCArray:create()
+     arr:addObject(CCFadeIn:create(0.2))
+     arr:addObject(CCSpawn:createWithTwoActions(CCMoveBy:create(0.6, ccp(0,50)),
+                                                CCFadeOut:create(0.6)
+                   ))
+     arr:addObject(CCCallFuncN:create(callback))
+     local seq = CCSequence:create(arr)
+     label:runAction(seq)
+end
+
+--暂停动作
+function BattleHero:actionPause()
+    self.mount:getAnimation():pause()
+    self.body:getAnimation():pause()
+    table.foreach(self.soldiers,function(i,soldier)
+           soldier:getAnimation():pause()
+           end)
+    CCDirector:sharedDirector():getActionManager():pauseTarget(self) 
+end
+
+--继续动作
+function BattleHero:actionResume()
+    self.mount:getAnimation():resume()
+    self.body:getAnimation():resume()
+    table.foreach(self.soldiers,function(i,soldier)
+           soldier:getAnimation():resume()
+           end) 
+    CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
 end
