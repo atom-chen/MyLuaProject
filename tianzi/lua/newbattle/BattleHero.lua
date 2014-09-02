@@ -499,6 +499,7 @@ function BattleHero:onBtnClick(tag,herobtn)
         herobtn:setActive(false)
         herobtn:setQishi(0)
      end
+    
 end
 
 
@@ -552,6 +553,8 @@ function BattleHero:createBeAttackLable(value)
      if value >= 0 then
         label = CCLabelBMFont:create(string.format("%+d",value),"fonts/greenfont.fnt")
       else
+        print(P("fonts/redfont.fnt"))
+        print(CCFileUtils:sharedFileUtils():fullPathForFilename("fonts/redfont.fnt"))
         label = CCLabelBMFont:create(string.format("%+d",value),"fonts/redfont.fnt")
      end   
      self:addChild(label,100)
