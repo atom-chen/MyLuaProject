@@ -197,7 +197,7 @@ end
 function BattleHero:bigskill()
     
     if not self:isCanAttack() then
-        return
+        return false
     end 
 
     local function func()
@@ -209,7 +209,8 @@ function BattleHero:bigskill()
     end
 
     self.isInBigSkill = true
-    self.battleScene:bigSkillEffect(self.herocfg.HeroId,func)    
+    self.battleScene:bigSkillEffect(self.herocfg.HeroId,func)
+    return true    
 end
 
 --攻击队列
@@ -493,10 +494,11 @@ end
 
 --按钮回调
 function BattleHero:onBtnClick(tag,herobtn)
-     self:bigskill()
-     self.qishi = 0
-     herobtn:setActive(false)
-     herobtn:setQishi(0)
+     if self:bigskill() then
+        self.qishi = 0
+        herobtn:setActive(false)
+        herobtn:setQishi(0)
+     end
 end
 
 
