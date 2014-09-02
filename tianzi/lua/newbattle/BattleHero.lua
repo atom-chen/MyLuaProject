@@ -38,6 +38,8 @@ function BattleHero:ctor()
   self.battleScene = nil
   --序号用来标记位置
   self.index = 1
+  --按钮
+  self.btn = nil
      
   self.heroSize = SZ(K_SIZE*4, K_SIZE*2)
   self:setContentSize(self.heroSize)
@@ -103,7 +105,7 @@ function BattleHero:initPos(pos)
         self:action("stand",1)
     end
 
-    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * self.herocfg.movespeed/1000, pos),
+    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * 200/1000, pos),
                                                    CCCallFunc:create(walktopos))
     self:runAction(walkac)   
 end
@@ -224,16 +226,20 @@ end
 --添加气势
 function BattleHero:addQishi(qishiadd)
    self.qishi = self.qishi + qishiadd
-   if self.qishi >= MaxQishi and self.isattack then
-      self.battleScene.btnlist[self.index]:setEnabled(true)
+  
+   if self.btn then
+      self.btn:setQishi(self.qishi / MaxQishi * 100)
+      if self.qishi >= MaxQishi then
+         self.btn:setActive(true)
+      end
    end
 end
 
 --死亡
 function BattleHero:dead()
    self:setVisible(false)
-   if self.isattack  then
-      self.battleScene.btnlist[self.index]:setVisible(false)
+   if self.btn  then
+      self.btn:setVisible(false)
    end
 end
 
@@ -273,6 +279,9 @@ function BattleHero:subHp(attackvalue)
 
      local isDead = false
      self.hp = self.hp - attackvalue
+     if self.btn then
+        self.btn:setHp(self.hp / self.herocfg.hp * 100)
+     end
      
      local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10)
      self:subSoldier(num) 
@@ -453,3 +462,11 @@ function BattleHero:isCanAttack()
     end
     return result
 end 
+
+--按钮回调
+function BattleHero:onBtnClick(tag,herobtn)
+     self:bigskill()
+     self.qishi = 0
+     herobtn:setActive(false)
+     herobtn:setQishi(0)
+end

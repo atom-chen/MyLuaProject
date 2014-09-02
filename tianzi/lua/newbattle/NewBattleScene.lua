@@ -1,6 +1,7 @@
 require "extern"
 require "newbattle.HeroDataConfig"
 require "newbattle.BattleHero"
+require "newbattle.HeroButton"
 
 function handler(target, method)
     return function(...)
@@ -23,8 +24,6 @@ function NewBattleScene:ctor()
     --列表
 	self.gridlist = {}
 	self.isEnd = false
-    self.btnlist = {}
-
     self:initBackground()
     self:registerScriptHandler(handler(self, self.execScript))
 end
@@ -63,9 +62,8 @@ function NewBattleScene:loadArmature()
 	adm:addArmatureFileInfo(P("mount/mount88007_1/mount88007.ExportJson"))
 
 	self:createLayer()
-	self:createButtonLayer()
 	self:createHero()
-
+    self:createButtonLayer()
 end
 
 --进入主场景
@@ -117,13 +115,15 @@ function NewBattleScene:createButtonLayer()
 	spBar:setPosition(ccp(WINSIZE.width/2, spBar:getContentSize().height))
 	self:addChild(spBar, 0)
     
-    for i=1,6 do
-     	local btnHero = Button.new(P("head/2.png"), P("head/1.png"), P("head/1.png"), handler(self, self.onButtonClick))
-		btnHero:getMenuItem():setTag(i)
-		btnHero:setPosition(ccp(WINSIZE.width*0.8/6*i+btnHero:getContentSize().width/2, -btnHero:getContentSize().height/3))
-		btnHero:setEnabled(false)
-		spBar:addChild(btnHero)
-        table.insert(self.btnlist,btnHero)
+    local i = 1
+    for j=#self.attacklist ,1,-1 do
+    	local hero = self.attacklist[j]
+    	local picName = P(string.format("head/herohead_%03d.png",hero.herocfg.HeroId))
+    	local btnHero = HeroButton:Create(AttackList[j].HeroId, handler(hero, hero.onBtnClick))
+    	hero.btn = btnHero
+    	btnHero:setPosition(ccp(WINSIZE.width*0.8/6*i+btnHero:getContentSize().width/2, -btnHero:getContentSize().height/3))
+    	spBar:addChild(btnHero)
+    	i = i + 1
      end 
 
 end
