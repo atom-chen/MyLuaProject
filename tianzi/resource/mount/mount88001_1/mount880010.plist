@@ -7,26 +7,26 @@
 			<key>cowhead.png</key>
 			<dict>
 				<key>width</key>
-				<integer>51</integer>
+				<integer>52</integer>
 				<key>height</key>
-				<integer>46</integer>
+				<integer>47</integer>
 				<key>originalWidth</key>
 				<integer>52</integer>
 				<key>originalHeight</key>
-				<integer>46</integer>
+				<integer>47</integer>
 				<key>x</key>
 				<integer>0</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
-				<real>-0.25</real>
+				<real>0</real>
 				<key>offsetY</key>
 				<real>0</real>
 			</dict>
 			<key>cowleg21.png</key>
 			<dict>
 				<key>width</key>
-				<integer>21</integer>
+				<integer>22</integer>
 				<key>height</key>
 				<integer>18</integer>
 				<key>originalWidth</key>
@@ -34,30 +34,30 @@
 				<key>originalHeight</key>
 				<integer>18</integer>
 				<key>x</key>
-				<integer>53</integer>
+				<integer>54</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
-				<real>-0.25</real>
+				<real>0</real>
 				<key>offsetY</key>
 				<real>0</real>
 			</dict>
 			<key>cowleg11.png</key>
 			<dict>
 				<key>width</key>
-				<integer>25</integer>
+				<integer>27</integer>
 				<key>height</key>
-				<integer>23</integer>
+				<integer>24</integer>
 				<key>originalWidth</key>
-				<integer>26</integer>
+				<integer>27</integer>
 				<key>originalHeight</key>
-				<integer>23</integer>
+				<integer>24</integer>
 				<key>x</key>
-				<integer>76</integer>
+				<integer>54</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>20</integer>
 				<key>offsetX</key>
-				<real>0.500000953674316</real>
+				<real>0</real>
 				<key>offsetY</key>
 				<real>0</real>
 			</dict>
@@ -66,108 +66,108 @@
 				<key>width</key>
 				<integer>14</integer>
 				<key>height</key>
-				<integer>18</integer>
+				<integer>19</integer>
 				<key>originalWidth</key>
 				<integer>14</integer>
 				<key>originalHeight</key>
 				<integer>19</integer>
 				<key>x</key>
-				<integer>103</integer>
+				<integer>83</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.5</real>
+				<real>0</real>
 			</dict>
 			<key>cowleg12.png</key>
 			<dict>
 				<key>width</key>
-				<integer>11</integer>
+				<integer>12</integer>
 				<key>height</key>
-				<integer>20</integer>
+				<integer>21</integer>
 				<key>originalWidth</key>
 				<integer>12</integer>
 				<key>originalHeight</key>
 				<integer>21</integer>
 				<key>x</key>
-				<integer>119</integer>
+				<integer>99</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
-				<real>-0.5</real>
+				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>cowbody.png</key>
 			<dict>
 				<key>width</key>
 				<integer>79</integer>
 				<key>height</key>
-				<integer>44</integer>
+				<integer>45</integer>
 				<key>originalWidth</key>
 				<integer>79</integer>
 				<key>originalHeight</key>
 				<integer>45</integer>
 				<key>x</key>
-				<integer>132</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>49</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>cowtail.png</key>
 			<dict>
 				<key>width</key>
-				<integer>34</integer>
+				<integer>35</integer>
 				<key>height</key>
-				<integer>36</integer>
+				<integer>37</integer>
 				<key>originalWidth</key>
-				<integer>34</integer>
+				<integer>35</integer>
 				<key>originalHeight</key>
-				<integer>36</integer>
+				<integer>37</integer>
 				<key>x</key>
-				<integer>213</integer>
+				<integer>81</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>46</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>cowleg31.png</key>
 			<dict>
 				<key>width</key>
 				<integer>18</integer>
 				<key>height</key>
-				<integer>22</integer>
+				<integer>24</integer>
 				<key>originalWidth</key>
 				<integer>18</integer>
 				<key>originalHeight</key>
-				<integer>23</integer>
+				<integer>24</integer>
 				<key>x</key>
-				<integer>249</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>96</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>-1.5</real>
+				<real>0</real>
 			</dict>
 			<key>cowshader.png</key>
 			<dict>
 				<key>width</key>
-				<integer>73</integer>
+				<integer>74</integer>
 				<key>height</key>
-				<integer>31</integer>
+				<integer>32</integer>
 				<key>originalWidth</key>
-				<integer>73</integer>
+				<integer>74</integer>
 				<key>originalHeight</key>
-				<integer>31</integer>
+				<integer>32</integer>
 				<key>x</key>
-				<integer>269</integer>
+				<integer>113</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
@@ -185,14 +185,14 @@
 			<key>realTextureFileName</key>
 			<string>mount880010.png</string>
 			<key>size</key>
-			<string>{512,512}</string>
+			<string>{256,256}</string>
 		</dict>
 		<key>texture</key>
 		<dict>
 			<key>width</key>
-			<integer>512</integer>
+			<integer>256</integer>
 			<key>height</key>
-			<integer>512</integer>
+			<integer>256</integer>
 		</dict>
 	</dict>
 </plist>

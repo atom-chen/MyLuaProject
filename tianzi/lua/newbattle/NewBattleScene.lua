@@ -22,7 +22,14 @@ function NewBattleScene:ctor()
 	self.attackalreadyCount = 0
 	self.defendalreadyCount = 0
     --列表
-	self.gridlist = {}
+	self.gridlist = {
+    	[1] = {},
+    	[2] = {},
+    	[3] = {},
+    	[4] = {},
+    	[5] = {},
+    	[6] = {}
+    }
 	self.isEnd = false
     self:initBackground()
     self:registerScriptHandler(handler(self, self.execScript))
@@ -30,7 +37,7 @@ end
 
 --设置Bg
 function NewBattleScene:initBackground()
-    local spBg = CCSprite:create(P("background/battlebg.jpg"))
+    local spBg = CCSprite:create(P("background/battlebg.png"))
 	spBg:setPosition(ccp(WINSIZE.width/2, WINSIZE.height/2))
 	self:addChild(spBg, -1)
 	self.spBg = spBg
@@ -40,25 +47,25 @@ end
 function NewBattleScene:loadArmature()
 
     local adm = CCArmatureDataManager:sharedArmatureDataManager()
-	adm:addArmatureFileInfo(P("soldier/soldat1_1/soldat1.ExportJson"))
-	adm:addArmatureFileInfo(P("soldier/soldat2_1/soldat2.ExportJson"))
-	adm:addArmatureFileInfo(P("soldier/soldat3_1/soldat3.ExportJson"))
-	adm:addArmatureFileInfo(P("soldier/soldat4_1/soldat4.ExportJson"))
-	adm:addArmatureFileInfo(P("soldier/soldat5_1/soldat5.ExportJson"))
-	adm:addArmatureFileInfo(P("soldier/soldat6_1/soldat6.ExportJson"))
+	adm:addArmatureFileInfo(P("soldier/soldat1/soldat1.ExportJson"))
+	adm:addArmatureFileInfo(P("soldier/soldat2/soldat2.ExportJson"))
+	adm:addArmatureFileInfo(P("soldier/soldat3/soldat3.ExportJson"))
+	adm:addArmatureFileInfo(P("soldier/soldat4/soldat4.ExportJson"))
+	--adm:addArmatureFileInfo(P("soldier/soldat5/soldat5.ExportJson"))
+	adm:addArmatureFileInfo(P("soldier/soldat6/soldat6.ExportJson"))
 	
 	adm:addArmatureFileInfo(P("hero/hero001/hero001.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero002/hero002.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero151/hero151.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero153/hero153.ExportJson"))
-	adm:addArmatureFileInfo(P("hero/hero155/hero155.ExportJson"))
+	--adm:addArmatureFileInfo(P("hero/hero155/hero155.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero177/hero177.ExportJson"))
 	
 	adm:addArmatureFileInfo(P("mount/mount88001_1/mount88001.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88002_1/mount88002.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88004_1/mount88004.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88005_1/mount88005.ExportJson"))
-	adm:addArmatureFileInfo(P("mount/mount88006_1/mount88006.ExportJson"))
+	--adm:addArmatureFileInfo(P("mount/mount88006_1/mount88006.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88007_1/mount88007.ExportJson"))
 
 	self:createLayer()
@@ -110,18 +117,22 @@ end
 --创建按钮层
 function NewBattleScene:createButtonLayer()
 
-	local spBar = CCSprite:create(P("form/form108840.png"))
-	spBar:setAnchorPoint(ccp(0.5, 0))
-	spBar:setPosition(ccp(WINSIZE.width/2, spBar:getContentSize().height))
-	self:addChild(spBar, 0)
+    local spBar = CCLayer:create()
+    spBar:setContentSize(CCSize(WINSIZE.width, WINSIZE.height / 5))
+    self:addChild(spBar,0)
     
+    local hvalue = 20
+    local headwidth = 80
+    local totalwidth = headwidth *  #self.attacklist + hvalue * (#self.attacklist - 1)
+    local leftX = (WINSIZE.width - totalwidth) / 2    
+
     local i = 1
     for j=#self.attacklist ,1,-1 do
     	local hero = self.attacklist[j]
     	local picName = P(string.format("head/herohead_%03d.png",hero.herocfg.HeroId))
     	local btnHero = HeroButton:Create(AttackList[j].HeroId, handler(hero, hero.onBtnClick))
     	hero.btn = btnHero
-    	btnHero:setPosition(ccp(WINSIZE.width*0.8/6*i+btnHero:getContentSize().width/2, -btnHero:getContentSize().height/3))
+    	btnHero:setPosition(ccp(leftX + (i-1) * (hvalue + headwidth), spBar:getContentSize().height - btnHero:getContentSize().height))
     	spBar:addChild(btnHero)
     	i = i + 1
      end 
@@ -151,23 +162,57 @@ function NewBattleScene:createHero()
     table.sort(AttackList,sortfunc)
     table.sort(DefendList,sortfunc)
     
-    local function createAttakHero(index,config)
-       local hero = BattleHero:create(config,true,index,SmallGrid[6-index+1],self)
-	   self.battlelayer:addChild(hero)
-	   self.attacklist[index] = hero
+    local atttable = {
+      [1] = {},
+      [2] = {},
+      [3] = {}
+    }
+    
+    local deftable = {
+      [1] = {},
+      [2] = {},
+      [3] = {}
+    }
+
+    table.foreach(AttackList,function(index,config)
+         local biggrid  = math.modf(config.Siteid /100)
+         table.insert(atttable[biggrid],config) 
+    end)
+    table.foreach(DefendList,function(index,config)
+         local biggrid  = math.modf(config.Siteid /100)
+         table.insert(deftable[biggrid],config) 
+    end)
+     
+    local index = 1 
+    for biggrid,herolist in ipairs(atttable) do
+    	local count = #herolist
+        table.foreach(herolist,function(smallgrid,config)
+             local pos = getSmallGrid(4 - biggrid,count,smallgrid)
+             local hero = BattleHero:create(config,true,index,pos,self)
+             hero.gridindex = 4 - biggrid
+             self.battlelayer:addChild(hero,240 - pos.y)
+             self.attacklist[index] = hero
+             index = index + 1
+        end)	
     end
-    
-    local function createDefendHero(index,config)
-       local hero = BattleHero:create(config,false,index,SmallGrid[6+index],self)
-	   self.battlelayer:addChild(hero)
-	   self.defendlist[index] = hero
-    end 
-    
-    table.foreach(AttackList,createAttakHero)
-    table.foreach(DefendList,createDefendHero)  
+   
+
+    index = 1
+    for biggrid,herolist in ipairs(deftable) do
+    	local count = #herolist
+        table.foreach(herolist,function(smallgrid,config)
+        	 local pos = getSmallGrid(3 + biggrid,count,smallgrid)
+             local hero = BattleHero:create(config,false,index,pos,self)
+             hero.gridindex = 3 + biggrid
+             self.battlelayer:addChild(hero,240 - pos.y)
+             self.defendlist[index] = hero
+             index = index + 1
+        end)
+    end  
 
 end
 
+--准备完成
 function NewBattleScene:alreadyCallback(isAttack)
      
      if isAttack then
@@ -179,8 +224,10 @@ function NewBattleScene:alreadyCallback(isAttack)
      local function initTimer(index,hero)
           hero:initTimer()
      end
-
+     
+    
      if self.attackalreadyCount == table.getn(self.attacklist)  and  self.defendalreadyCount ==  table.getn(self.defendlist) then
+ 
          table.foreach(self.attacklist,initTimer)
          table.foreach(self.defendlist,initTimer)
      end
@@ -199,15 +246,15 @@ function NewBattleScene:endGame(isattack)
 	    end
 	    
 	    table.foreach(list,function(i,hero)
-	         hero:unscheduleUpdate()
 	         hero:stopAllActions()
-	         hero:action("win",1)
+	         hero.state = HeroState.WIN
 	    	end)
 	    self.isEnd = true
 	end 
      
 end
 
+--游戏暂停
 function NewBattleScene:pause()
     
     local function pausehero(i,hero)
@@ -217,6 +264,7 @@ function NewBattleScene:pause()
     table.foreach(self.defendlist,pausehero)
 end
 
+--游戏继续
 function NewBattleScene:resume()
 	local function resumehero(i,hero)
     	hero:actionResume()
@@ -234,7 +282,7 @@ function NewBattleScene:bigSkillEffect(heroid,func)
 
     local bg = CCSprite:create(P("skill/bg1.png"))
     layer:addChild(bg)
-    bg:setPosition(ccp(WINSIZE.width/2, WINSIZE.height*0.4))
+    bg:setPosition(ccp(WINSIZE.width/2, WINSIZE.height*0.2))
 
     local animFrames = CCArray:create()
 	for i = 1, 2, 1 do
@@ -246,27 +294,16 @@ function NewBattleScene:bigSkillEffect(heroid,func)
 
     local animation = CCAnimation:createWithSpriteFrames(animFrames, 0.15)
 	bg:runAction(CCRepeatForever:create(CCAnimate:create(animation)))
-	local heropic = nil
-	if heroid % 2 == 0 then
-		heropic = P("skill/hero2.png")
-	else
-		heropic = P("skill/hero1.png")
-	end
-    
+	local heropic = P(string.format("skill/hero%03d.png",heroid))
     local heroCard = CCSprite:create(heropic)
     layer:addChild(heroCard)
     heroCard:setAnchorPoint(ccp(0, 0))
 	heroCard:setPosition(ccp(-heroCard:getContentSize().width, bg:getPositionY() - bg:getContentSize().height/2))
 
-	local name = nil
-	if heroid % 2 == 0 then
-		name = CCSprite:create(P("skill/yjdq.png")) 
-	else
-		name = CCSprite:create(P("skill/jsmr.png"))
-	end
+	local name = CCSprite:create(P(string.format("skill/skill1_%03d.png",heroid))) 
     layer:addChild(name)
-    name:setAnchorPoint(ccp(0, 0))
-	name:setPosition(ccp(WINSIZE.width*0.42, bg:getPositionY() + bg:getContentSize().height/2))
+    name:setAnchorPoint(ccp(1, 0.5))
+	name:setPosition(ccp(WINSIZE.width, bg:getPositionY()))
 	name:setVisible(false)
 	name:setScale(10)
 
@@ -279,11 +316,12 @@ function NewBattleScene:bigSkillEffect(heroid,func)
 	end
   
     local function nameAction()
-		local spawn = CCSpawn:createWithTwoActions(CCFadeIn:create(0.3), CCScaleTo:create(0.2, 1))
+		local spawn = CCSpawn:createWithTwoActions(CCFadeIn:create(0.6), CCScaleTo:create(0.4, 1))
         local arr = CCArray:create()
-        arr:addObject(CCDelayTime:create(0.1))
+        arr:addObject(CCDelayTime:create(0.2))
         arr:addObject(CCShow:create())
         arr:addObject(spawn)
+        arr:addObject(CCDelayTime:create(0.3))
         arr:addObject(CCCallFunc:create(cleanAndPlayBigSkill))
         local seq = CCSequence:create(arr)
 		name:runAction(seq)
@@ -292,6 +330,42 @@ function NewBattleScene:bigSkillEffect(heroid,func)
     heroCard:runAction(CCSequence:createWithTwoActions(action, CCCallFunc:create(nameAction)))
 end
 
+--添加到网格
+function NewBattleScene:addToGrid(bigGrid,hero)
+	if bigGrid <=0 or bigGrid > 6 then
+		return
+	end
+    table.insert(self.gridlist[bigGrid],hero)
+end
 
+--移除网格
+function NewBattleScene:removeFromGrid(bigGrid,hero)
+    
+    if bigGrid <=0 or bigGrid > 6 then
+		return
+	end
+    table.foreach(self.gridlist[bigGrid],function(i,targethero)
+	    	if targethero == hero then
+	    	   self.gridlist[bigGrid][i] = nil
+	    	end
+    	end)
+end
 
+--获得敌人
+function NewBattleScene:getAnenmyFromGrid(bigGrid,isattack)
+	
+	if bigGrid <=0 or bigGrid > 6 then
+		return
+	end
+    local result = -1
 
+    function findtarget(i,targethero)
+	     if targethero.isattack ~= isattack and targethero.state ~= HeroState.DEAD then
+		   result = i
+		end
+    end
+    table.foreach(self.gridlist[bigGrid],findtarget)
+	if result ~= -1 then
+	    return self.gridlist[bigGrid][result]
+	end
+end

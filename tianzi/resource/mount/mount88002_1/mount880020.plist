@@ -7,13 +7,13 @@
 			<key>pighead.png</key>
 			<dict>
 				<key>width</key>
-				<integer>58</integer>
+				<integer>59</integer>
 				<key>height</key>
-				<integer>56</integer>
-				<key>originalWidth</key>
 				<integer>58</integer>
+				<key>originalWidth</key>
+				<integer>59</integer>
 				<key>originalHeight</key>
-				<integer>57</integer>
+				<integer>58</integer>
 				<key>x</key>
 				<integer>0</integer>
 				<key>y</key>
@@ -21,7 +21,7 @@
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.5</real>
+				<real>0</real>
 			</dict>
 			<key>pigleg21.png</key>
 			<dict>
@@ -34,7 +34,7 @@
 				<key>originalHeight</key>
 				<integer>18</integer>
 				<key>x</key>
-				<integer>60</integer>
+				<integer>61</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
@@ -47,81 +47,81 @@
 				<key>width</key>
 				<integer>13</integer>
 				<key>height</key>
-				<integer>13</integer>
+				<integer>14</integer>
 				<key>originalWidth</key>
 				<integer>13</integer>
 				<key>originalHeight</key>
 				<integer>14</integer>
 				<key>x</key>
-				<integer>80</integer>
+				<integer>61</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>20</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>pigleg22.png</key>
 			<dict>
 				<key>width</key>
 				<integer>16</integer>
 				<key>height</key>
-				<integer>16</integer>
+				<integer>17</integer>
 				<key>originalWidth</key>
 				<integer>16</integer>
 				<key>originalHeight</key>
 				<integer>17</integer>
 				<key>x</key>
-				<integer>95</integer>
+				<integer>81</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>pigleg12.png</key>
 			<dict>
 				<key>width</key>
-				<integer>12</integer>
+				<integer>13</integer>
 				<key>height</key>
-				<integer>18</integer>
+				<integer>20</integer>
 				<key>originalWidth</key>
 				<integer>13</integer>
 				<key>originalHeight</key>
-				<integer>19</integer>
+				<integer>20</integer>
 				<key>x</key>
-				<integer>113</integer>
+				<integer>76</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>20</integer>
 				<key>offsetX</key>
-				<real>-0.249999523162842</real>
+				<real>0</real>
 				<key>offsetY</key>
-				<real>0.5</real>
+				<real>0</real>
 			</dict>
 			<key>pigbody.png</key>
 			<dict>
 				<key>width</key>
-				<integer>60</integer>
+				<integer>61</integer>
 				<key>height</key>
-				<integer>43</integer>
+				<integer>44</integer>
 				<key>originalWidth</key>
-				<integer>60</integer>
+				<integer>61</integer>
 				<key>originalHeight</key>
-				<integer>43</integer>
+				<integer>44</integer>
 				<key>x</key>
-				<integer>127</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>60</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>pigtail.png</key>
 			<dict>
 				<key>width</key>
-				<integer>25</integer>
+				<integer>26</integer>
 				<key>height</key>
 				<integer>29</integer>
 				<key>originalWidth</key>
@@ -129,11 +129,11 @@
 				<key>originalHeight</key>
 				<integer>29</integer>
 				<key>x</key>
-				<integer>189</integer>
+				<integer>99</integer>
 				<key>y</key>
 				<integer>0</integer>
 				<key>offsetX</key>
-				<real>-0.25</real>
+				<real>0</real>
 				<key>offsetY</key>
 				<real>0</real>
 			</dict>
@@ -142,34 +142,34 @@
 				<key>width</key>
 				<integer>13</integer>
 				<key>height</key>
-				<integer>17</integer>
+				<integer>18</integer>
 				<key>originalWidth</key>
 				<integer>13</integer>
 				<key>originalHeight</key>
-				<integer>17</integer>
+				<integer>18</integer>
 				<key>x</key>
-				<integer>216</integer>
+				<integer>61</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>36</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
-				<real>0.25</real>
+				<real>0</real>
 			</dict>
 			<key>pigshader.png</key>
 			<dict>
 				<key>width</key>
-				<integer>73</integer>
+				<integer>74</integer>
 				<key>height</key>
-				<integer>31</integer>
+				<integer>32</integer>
 				<key>originalWidth</key>
-				<integer>73</integer>
+				<integer>74</integer>
 				<key>originalHeight</key>
-				<integer>31</integer>
+				<integer>32</integer>
 				<key>x</key>
-				<integer>231</integer>
+				<integer>76</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>42</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -185,14 +185,14 @@
 			<key>realTextureFileName</key>
 			<string>mount880020.png</string>
 			<key>size</key>
-			<string>{512,512}</string>
+			<string>{256,256}</string>
 		</dict>
 		<key>texture</key>
 		<dict>
 			<key>width</key>
-			<integer>512</integer>
+			<integer>256</integer>
 			<key>height</key>
-			<integer>512</integer>
+			<integer>256</integer>
 		</dict>
 	</dict>
 </plist>

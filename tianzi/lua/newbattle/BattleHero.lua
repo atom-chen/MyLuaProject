@@ -7,15 +7,25 @@ end
 function getSoldierArmatureName(nCorps)
     return "soldat"..nCorps
 end
-
+--站立状态为基本状态,平常没有动作的时候都是站立状态
 HeroState = {
-    --空闲
-    FREE = 1,
-    --动作
-    ACTION = 2,
+    --无
+    NONE = 0,
+    --寻找目标
+    FINDTARGET = 1,
+    --行走
+    WALK = 3,
+    --行走中
+    WALKING = 7,
+    --攻击
+    ATTACK = 4,
     --死亡
-    DEAD = 3
+    DEAD = 5,
+    --胜利
+    WIN = 6
 }
+
+local WalkActionTag = 9999
 
 --英雄类
 BattleHero = class("BattleHero",function()
@@ -45,7 +55,7 @@ function BattleHero:ctor()
   self.hpbg = nil
   self.hpbar = nil
      
-  self.heroSize = SZ(K_SIZE*4, K_SIZE*2)
+  self.heroSize = SZ(K_HEIGHT *4, K_WIDTH *2)
   self:setContentSize(self.heroSize)
 end
 
@@ -76,16 +86,13 @@ function BattleHero:initState(herocfg)
     --血量
     self.hp = herocfg.hp
     --英雄状态
-    self.state = HeroState.FREE
+    self.state = HeroState.FINDTARGET
     -- 攻击目标
     self.target = nil
     --当前位置
     self.gridindex = 0
-
-    self.isInBigSkill = false
     
-    self.isBeginToDie = false
-
+    self.ispaused = false
     
 end
 
@@ -104,16 +111,11 @@ function BattleHero:initPos(pos)
     local function walktopos()
         --通知作战页面zb好了
         self.battleScene:alreadyCallback(self.isattack)
-        if self.isattack then
-           self.gridindex = 6 - self.index + 1
-        else
-           self.gridindex = 6 + self.index
-        end 
-        self.battleScene.gridlist[self.gridindex] = self
+        self.battleScene:addToGrid(self.gridindex, self)
         self:action("stand",1)
     end
 
-    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * 200/1000, pos),
+    local walkac = CCSequence:createWithTwoActions(CCMoveTo:create(12 * 400/1000, pos),
                                                    CCCallFunc:create(walktopos))
     self:runAction(walkac)   
 end
@@ -138,7 +140,7 @@ function BattleHero:createHeroAndMount(heroid,mountid)
     local bone = mount:getBone("heromid")
     bone:addDisplay(heromid, 0)
     bone:changeDisplayByIndex(0, true)    
-    mount:setPosition(ccp(K_SIZE*1, self.heroSize.height/3))
+    mount:setPosition(ccp(K_WIDTH *1, self.heroSize.height/3))
     
     self.body = heromid
     self.mount = mount
@@ -151,36 +153,39 @@ end
 --设置士兵
 function BattleHero:createSoldier(soldierid)
     
-    local soldierPosX = { [3] = K_SIZE*2.6,[2] = K_SIZE*3.4 ,[1]= K_SIZE*4.2}
-    local soldierPoxY = { [3] = self.heroSize.height/4*1,[2]= self.heroSize.height/4*2,[1] = self.heroSize.height/4*3}   
-     
-    for j=1,3 do
-        for i=1,3 do
+    --local soldierPosX = { [3] = K_SIZE*2.6,[2] = K_SIZE*3.4 ,[1]= K_SIZE*4.2}
+    --local soldierPoxY = { [3] = self.heroSize.height/6*1,[2]= self.heroSize.height/6*3,[1] = self.heroSize.height/6*5}   
+    
+    local soldierPosX = { [2] = K_WIDTH * 2.5 ,[1]= K_WIDTH *3.5}
+    local soldierPoxY = { [2] = K_HEIGHT* 0.5, [1] = K_HEIGHT * 1.5}   
+
+    for j=1,2 do
+        for i=1,2 do
             local soldier = CCArmature:create(soldierid)
             soldier:setPosition(ccp(soldierPosX[i],soldierPoxY[j]))
             self:addChild(soldier,j)
-            self.soldiers[(j-1) * 3 + (i - 1) + 1 ] = soldier
+            self.soldiers[(j-1) * 2 + (i - 1) + 1 ] = soldier
             soldier:getAnimation():registerMovementHandler(handler(self, self.SoldierMovementEventCallFun))
         end
     end
 end
 
 --持续行动 walk stand win dead
-function BattleHero:action(movestate,isloop)
+function BattleHero:action(movestate,isloop) 
 
-    self.mount:getAnimation():play(movestate,-1,-1,isloop)
-    self.body:getAnimation():play(movestate,-1,-1,isloop)
-     table.foreach(self.soldiers,function(i,soldier)
-                  soldier:getAnimation():play(movestate,-1,-1,isloop)
-                  end)      
+   self.mount:getAnimation():play(movestate,-1,-1,isloop)
+   self.body:getAnimation():play(movestate,-1,-1,isloop)
+   table.foreach(self.soldiers,function(i,soldier)
+                soldier:getAnimation():play(movestate,-1,-1,isloop)
+                end)      
 end
 
 --普通攻击1.2
 function BattleHero:attack(num)
-    self.mount:getAnimation():play("attack",self.herocfg.attackspeed/1000,-1,0)
-    self.body:getAnimation():play("attack",self.herocfg.attackspeed/1000,-1,0)
+    self.mount:getAnimation():play("attack",-1,-1,0)
+    self.body:getAnimation():play("attack",-1,-1,0)
     table.foreach(self.soldiers,function(i,soldier)
-          soldier:getAnimation():play("attack"..num,self.herocfg.attackspeed/1000,-1,0)
+          soldier:getAnimation():play("attack"..num,-1,-1,0)
                                 end)
 end
 
@@ -197,10 +202,12 @@ end
 function BattleHero:bigskill()
     
     if not self:isCanAttack() then
-        return false
+       return false
     end 
 
     local function func()
+
+       self:pauseWalkAction(true)
        self.mount:getAnimation():play("attack",-1,-1,0)
        self.body:getAnimation():play("ult",-1,-1,0)
        table.foreach(self.soldiers,function(i,soldier)
@@ -208,20 +215,27 @@ function BattleHero:bigskill()
            end)
     end
 
-    self.isInBigSkill = true
-    self.battleScene:bigSkillEffect(self.herocfg.HeroId,func)
+    if self.isattack then
+       self.battleScene:bigSkillEffect(self.herocfg.HeroId,func)
+    else
+       func()
+    end
+   
     return true    
 end
 
 --攻击队列
 function BattleHero:normalAttack()
    
-   --自动大招
+   --不能攻击的话原地站立
    if not self:isCanAttack() then
+      self:action("stand",1)
+      self.state = HeroState.FINDTARGET
       return
    end
-
-   if (not self.isattack) and self.qishi >= 2300 then
+   
+   --被攻击方自动大招
+   if (not self.isattack) and self.qishi >= 3 * MaxQishi then
        self:bigskill()
        self.qishi = 0
        return
@@ -257,7 +271,8 @@ end
 function BattleHero:dead()
    self:setVisible(false)
    if self.btn  then
-      self.btn:setVisible(false)
+      self.btn:setActive(false)
+      self.btn:setQishi(0)
    end
 end
 
@@ -273,6 +288,7 @@ function BattleHero:subSoldier(num)
 
 end
 
+--士兵回调
 function BattleHero:SoldierMovementEventCallFun(armature,moveevnettype,movementid)
     
     if moveevnettype == 1 or moveevnettype == 2 then
@@ -283,14 +299,11 @@ function BattleHero:SoldierMovementEventCallFun(armature,moveevnettype,movementi
     end
 end
 
---扣血
+--返回是否死亡
 function BattleHero:subHp(attackvalue)
      
-     --大招中无敌 
-     if self.isInBigSkill  then
-        return false
-     end
-
+     
+     --死亡
      if self.state == HeroState.DEAD then
         return true
      end
@@ -303,7 +316,7 @@ function BattleHero:subHp(attackvalue)
      self:setHpBarValue(self.hp / self.herocfg.hp * 100)
      self:createBeAttackLable(-attackvalue)
      
-     local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10)
+     local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10 / 2)
      self:subSoldier(num) 
 
      self:addQishi(BeAttackQishiAdd)
@@ -311,25 +324,24 @@ function BattleHero:subHp(attackvalue)
         isDead = true
         if self.status ~=  HeroState.DEAD then
            self.state = HeroState.DEAD
-           self.isBeginToDie = true
         end
         
      end
      return isDead
 end
 
+--攻击目标
 function BattleHero:attackTarget(attackvalue)
     if self.target then
       if self.target then
          if self.target:subHp(attackvalue) then
             self.target = nil
-            self.state = HeroState.FREE
          end
        end
     end
 end
 
---动作回调
+--武将动作回调
 function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
    
    --动作完成 
@@ -338,11 +350,23 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            --攻击增加气势
            self:addQishi(AttackQishiAdd)
            self:attackTarget(self.herocfg.ad)
-           self:normalAttack()
+           self:action("stand",1)
+           self:doNextAttack(function()
+               self.state = HeroState.FINDTARGET
+           end)
+
        elseif movementid == "ult" then
-           self.isInBigSkill = false 
-           self:attackTarget(self.herocfg.ad * 10)
-           self:normalAttack()
+           CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
+
+           self:attackTarget(self.herocfg.ad * 3)
+           self:action("stand",1)
+
+           if not self:pauseWalkAction(false) then
+              self:doNextAttack(function()
+                 self.state = HeroState.FINDTARGET
+              end)
+           end
+           
        elseif movementid == "dead" then
            self:dead()
        end
@@ -358,25 +382,62 @@ end
 --计时器
 function BattleHero:update(dt)
     
-    if self.isBeginToDie then
-        self:action("dead",0)
-        self.battleScene.gridlist[self.gridindex] = nil
-        if self.isattack then
+    
+    if  self.ispaused  then
+        return
+    end
+
+    --死亡
+    if self.state ==  HeroState.DEAD then       
+       self:action("dead",0)
+       self.battleScene:removeFromGrid(self.gridindex,self)
+       if self.isattack then
             self.battleScene.attacklist[self.index] = nil
             self.battleScene.attackalreadyCount = self.battleScene.attackalreadyCount - 1
-        else
+       else
             self.battleScene.defendlist[self.index] = nil
             self.battleScene.defendalreadyCount = self.battleScene.defendalreadyCount - 1
-        end
-       self.isBeginToDie = false
-       self.state = HeroState.DEAD
+       end
        self:unscheduleUpdate()
        return
     end
-
-    if self.state == HeroState.FREE then
-        self:findTarget()    
+    
+    --胜利
+    if self.state == HeroState.WIN then
+       self:action("win",1)
+       self:unscheduleUpdate()
+       return  
+    end 
+    
+    --前进
+    if self.state == HeroState.WALK then
+       self:action("walk",1)
+       self:movetoNextGrid()
+       self.state = HeroState.WALKING
+       return
     end
+    
+    --攻击
+    if self.state == HeroState.ATTACK then
+       self.state = HeroState.NONE  
+       self:normalAttack() 
+       return 
+    end
+    
+    --寻找目标
+    if self.state == HeroState.FINDTARGET then
+        self.state = HeroState.NONE  
+        self:action("stand",1)
+        self:findTarget()
+        return    
+    end
+    
+    --防止快死的时候按大招,后不死了
+    if self.status ~= HeroState.DEAD and self.hp <= 0 then
+       self.state = HeroState.DEAD
+       return 
+    end
+
 end
 
 --寻找目标
@@ -393,28 +454,26 @@ function BattleHero:findTarget()
   end
 
 
-  if not self.target then
+  if not self.target  or self.state == HeroState.DEAD or self.hp <= 0 then
      local findindexs = self:getFindIndexs()
      for i,v in ipairs(findindexs) do
-       local target =  self.battleScene.gridlist[v]
+       local target = self.battleScene:getAnenmyFromGrid(v,self.isattack)
        if target and target.state ~= HeroState.DEAD and target.isattack ~= self.isattack then
           self.target = target
-          self.state = HeroState.ACTION
-          self:normalAttack()
+          self.state = HeroState.ATTACK
           break
        end
      end
-     --没有找到目标 
-     if not self.target then
-         local de = 1
-         if not self.isattack then
-           de = -1
-         end
-         if not self.battleScene.gridlist[self.gridindex + de*2] then
-            self:movetoNextGrid()
-         end
-     end     
+  else
+     self.state = HeroState.ATTACK
+     return
   end
+
+   --没有找到目标 
+   if not self.target then
+       self.state = HeroState.WALK
+   end     
+
 end
 
 --获得寻找列表
@@ -423,29 +482,14 @@ function BattleHero:getFindIndexs()
    local findindexs = {}  
    local findtmp    = math.modf(self.herocfg.Siteid /100)
    if self.isattack then
-      if self.gridindex % 2 == 1 then
-        for i=self.gridindex + 1,self.gridindex + 2 * findtmp + 1 do
-          table.insert(findindexs,i)
-        end
-      else
-        table.insert(findindexs,self.gridindex  - 1)
-        for i=self.gridindex + 1,self.gridindex + 2 * findtmp do
-          table.insert(findindexs,i)
-        end
-
-      end
+     for i = self.gridindex + 1,self.gridindex + findtmp do
+       table.insert(findindexs,i)
+     end 
    else
-      if self.gridindex % 2 == 1 then
-         table.insert(findindexs,self.gridindex + 1)
-         for i=self.gridindex - 1,self.gridindex - 2 * findtmp ,-1 do
-            table.insert(findindexs,i)
-         end
-      else
-        for i=self.gridindex - 1,self.gridindex - 2 * findtmp -1 ,-1 do
-            table.insert(findindexs,i)
-        end
-      end
-   end 
+     for i = self.gridindex - 1,self.gridindex - findtmp,-1 do
+         table.insert(findindexs,i)
+     end 
+   end
    return findindexs 
 end
 
@@ -457,21 +501,21 @@ function BattleHero:movetoNextGrid()
        de = -1
     end
     local function movecallback()
-       self.state = HeroState.FREE
-       --self.gridindex = self.gridindex + de * 2
-       --self.battleScene.gridlist[self.gridindex] = self
+       self.state = HeroState.FINDTARGET
     end
     
-    self.battleScene.gridlist[self.gridindex] = nil
-    self.gridindex = self.gridindex + de * 2
-    self.battleScene.gridlist[self.gridindex] = self
-
-    self:action("walk",1)
+    self.battleScene:removeFromGrid(self.gridindex,self)
+    if self.isattack then
+       self.gridindex = self.gridindex + 1
+    else
+       self.gridindex = self.gridindex - 1
+    end
+    self.battleScene:addToGrid(self.gridindex,self)
 
     local pos = ccp( de * K_WIDTH * 4, 0)
-    self.state = HeroState.ACTION
     local walkac = CCSequence:createWithTwoActions(CCMoveBy:create(4 *  self.herocfg.movespeed /1000 , pos),
                                                    CCCallFunc:create(movecallback))
+    walkac:setTag(WalkActionTag)
     self:runAction(walkac)   
 
 end
@@ -479,15 +523,13 @@ end
 --是否能攻击
 function BattleHero:isCanAttack()
     
-    if self.state == HeroState.DEAD or self.isBeginToDie or self.hp <= 0 then
+    if self.state == HeroState.DEAD  or self.hp <= 0  or self.state == HeroState.WIN then
        return false
     end
     local result = true
-    if not self.target or self.target.state == HeroState.DEAD then
+    if not self.target or self.target.state == HeroState.DEAD  or self.hp <= 0 then
        result = false
        self.target = nil
-       self.state = HeroState.FREE
-       self:action("stand",1)
     end
     return result
 end 
@@ -551,11 +593,9 @@ function BattleHero:createBeAttackLable(value)
 
      local label = nil
      if value >= 0 then
-        label = CCLabelBMFont:create(string.format("%+d",value),"fonts/greenfont.fnt")
+        label = CCLabelBMFont:create(string.format("%+d",value),P("fonts/greenfont.fnt"))
       else
-        print(P("fonts/redfont.fnt"))
-        print(CCFileUtils:sharedFileUtils():fullPathForFilename("fonts/redfont.fnt"))
-        label = CCLabelBMFont:create(string.format("%+d",value),"fonts/redfont.fnt")
+        label = CCLabelBMFont:create(string.format("%+d",value),P("fonts/redfont.fnt"))
      end   
      self:addChild(label,100)
      if self.isattack then
@@ -586,6 +626,7 @@ function BattleHero:actionPause()
            soldier:getAnimation():pause()
            end)
     CCDirector:sharedDirector():getActionManager():pauseTarget(self) 
+    self.ispaused = true
 end
 
 --继续动作
@@ -596,4 +637,33 @@ function BattleHero:actionResume()
            soldier:getAnimation():resume()
            end) 
     CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
+     self.ispaused = false
+end
+
+--继续下一个动作的间隔
+function BattleHero:doNextAttack(func)
+    local id = 0
+    local function tick(dt)
+        func()
+        CCDirector:sharedDirector():getScheduler():unscheduleScriptEntry(id)
+        id = 0
+    end
+    if id == 0 then
+       id = CCDirector:sharedDirector():getScheduler():scheduleScriptFunc(tick, self.herocfg.attackspeed / 1000, false)
+    end
+    
+end
+
+--暂停行走动作 返回当前是否有动作
+function BattleHero:pauseWalkAction(isPause)
+    if self:getActionByTag(WalkActionTag) ~= nil  then
+       if isPause then
+          CCDirector:sharedDirector():getActionManager():pauseTarget(self) 
+       else
+          self:action("walk",1)
+          CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
+       end
+       return true
+    end 
+    return false
 end
