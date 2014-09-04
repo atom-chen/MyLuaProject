@@ -382,13 +382,25 @@ end
 --计时器
 function BattleHero:update(dt)
     
-    
+    --判断是否暂停
     if  self.ispaused  then
         return
     end
+    
+    --判断是否结束
+    if not self.battleScene.isEnd then
+       if self.battleScene.attackalreadyCount == 0 or self.battleScene.defendalreadyCount == 0 then
+          list = self.battleScene.attacklist
+          self.battleScene:endGame(self.battleScene.attackalreadyCount  - self.battleScene.defendalreadyCount >0)
+          return
+       end
+    end 
+ 
+
 
     --死亡
-    if self.state ==  HeroState.DEAD then       
+    if self.state ==  HeroState.DEAD then
+       self:stopAllActions()       
        self:action("dead",0)
        self.battleScene:removeFromGrid(self.gridindex,self)
        if self.isattack then
@@ -446,13 +458,6 @@ function BattleHero:findTarget()
    if self.state == HeroState.DEAD then
       return
    end
-
-  if self.battleScene.attackalreadyCount == 0 or self.battleScene.defendalreadyCount == 0 then
-     list = self.battleScene.attacklist
-     self.battleScene:endGame(self.battleScene.attackalreadyCount  - self.battleScene.defendalreadyCount >0)
-     return
-  end
-
 
   if not self.target  or self.state == HeroState.DEAD or self.hp <= 0 then
      local findindexs = self:getFindIndexs()
@@ -536,7 +541,7 @@ end
 
 --按钮回调
 function BattleHero:onBtnClick(tag,herobtn)
-     if self:bigskill() then
+     if self:bigskill() or self.state == HeroState.DEAD then
         self.qishi = 0
         herobtn:setActive(false)
         herobtn:setQishi(0)
