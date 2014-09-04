@@ -250,6 +250,7 @@ function NewBattleScene:endGame(isattack)
 	         hero.state = HeroState.WIN
 	    	end)
 	    self.isEnd = true
+        self:createReplayBtn()
 	end 
      
 end
@@ -368,4 +369,15 @@ function NewBattleScene:getAnenmyFromGrid(bigGrid,isattack)
 	if result ~= -1 then
 	    return self.gridlist[bigGrid][result]
 	end
+end
+
+function NewBattleScene:createReplayBtn()
+     
+    local function replay()
+        CCDirector:sharedDirector():replaceScene(NewBattleScene.new())
+    end
+    local btn = Button.new("herobattle/replay.png",nil,nil,replay)
+    self:addChild(btn)
+    btn:setPosition(ccp(WINSIZE.width/2 - btn:getContentSize().width/2, WINSIZE.height/2 - btn:getContentSize().height/2))
+
 end
