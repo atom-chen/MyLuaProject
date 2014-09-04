@@ -356,8 +356,7 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            end)
 
        elseif movementid == "ult" then
-           CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
-
+        
            self:attackTarget(self.herocfg.ad * 3)
            self:action("stand",1)
 
