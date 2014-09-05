@@ -378,6 +378,6 @@ function NewBattleScene:createReplayBtn()
     end
     local btn = Button.new("herobattle/replay.png",nil,nil,replay)
     self:addChild(btn)
-    btn:setPosition(ccp(WINSIZE.width/2 - btn:getContentSize().width/2, WINSIZE.height/2 - btn:getContentSize().height/2))
+    btn:setPosition(ccp(WINSIZE.width - btn:getContentSize().width, btn:getContentSize().height))
 
 end

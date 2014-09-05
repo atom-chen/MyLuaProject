@@ -19,6 +19,8 @@ HeroState = {
     WALKING = 7,
     --攻击
     ATTACK = 4,
+    --大招
+    BIGSKILL = 8,
     --死亡
     DEAD = 5,
     --胜利
@@ -206,13 +208,7 @@ function BattleHero:bigskill()
     end 
 
     local function func()
-
-       self:pauseWalkAction(true)
-       self.mount:getAnimation():play("attack",-1,-1,0)
-       self.body:getAnimation():play("ult",-1,-1,0)
-       table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():play("attack1",-1,-1,0)  
-           end)
+       self.state = HeroState.BIGSKILL
     end
 
     if self.isattack then
@@ -259,7 +255,7 @@ end
 function BattleHero:addQishi(qishiadd)
    self.qishi = self.qishi + qishiadd
   
-   if self.btn then
+   if self.btn and self.state ~= HeroState.DEAD then
       self.btn:setQishi(self.qishi / MaxQishi * 100)
       if self.qishi >= MaxQishi then
          self.btn:setActive(true)
@@ -270,10 +266,6 @@ end
 --死亡
 function BattleHero:dead()
    self:setVisible(false)
-   if self.btn  then
-      self.btn:setActive(false)
-      self.btn:setQishi(0)
-   end
 end
 
 --扣除士兵
@@ -356,8 +348,9 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            end)
 
        elseif movementid == "ult" then
-        
-           self:attackTarget(self.herocfg.ad * 3)
+           
+           print("play utl end:"..self.herocfg.HeroId,self.isattack)
+           self:attackTarget(self.herocfg.ad * 10)
            self:action("stand",1)
 
            if not self:pauseWalkAction(false) then
@@ -410,6 +403,10 @@ function BattleHero:update(dt)
             self.battleScene.defendalreadyCount = self.battleScene.defendalreadyCount - 1
        end
        self:unscheduleUpdate()
+       if self.btn  then
+         self.btn:setActive(false)
+         self.btn:setQishi(0)
+       end
        return
     end
     
@@ -417,6 +414,10 @@ function BattleHero:update(dt)
     if self.state == HeroState.WIN then
        self:action("win",1)
        self:unscheduleUpdate()
+        if self.btn  then
+           self.btn:setActive(false)
+           self.btn:setQishi(0)
+        end
        return  
     end 
     
@@ -444,9 +445,22 @@ function BattleHero:update(dt)
     end
     
     --防止快死的时候按大招,后不死了
-    if self.status ~= HeroState.DEAD and self.hp <= 0 then
+    if self.state ~= HeroState.DEAD and self.hp <= 0 then
        self.state = HeroState.DEAD
        return 
+    end
+    
+    --大招
+    if self.state == HeroState.BIGSKILL then
+       self.state = HeroState.NONE
+       print("play utl beg:"..self.herocfg.HeroId,self.isattack)
+       self:pauseWalkAction(true)
+       self.mount:getAnimation():play("attack",-1,-1,0)
+       self.body:getAnimation():play("ult",-1,-1,0)
+       table.foreach(self.soldiers,function(i,soldier)
+           soldier:getAnimation():play("attack1",-1,-1,0)  
+           end)
+       return
     end
 
 end
@@ -648,9 +662,9 @@ end
 function BattleHero:doNextAttack(func)
     local id = 0
     local function tick(dt)
-        func()
         CCDirector:sharedDirector():getScheduler():unscheduleScriptEntry(id)
         id = 0
+        func()
     end
     if id == 0 then
        id = CCDirector:sharedDirector():getScheduler():scheduleScriptFunc(tick, self.herocfg.attackspeed / 1000, false)
