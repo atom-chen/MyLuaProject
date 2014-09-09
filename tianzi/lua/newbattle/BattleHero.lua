@@ -56,6 +56,9 @@ function BattleHero:ctor()
 
   self.hpbg = nil
   self.hpbar = nil
+
+  self.skillarm = nil
+  self.bigskillarm = nil
      
   self.heroSize = SZ(K_HEIGHT *4, K_WIDTH *2)
   self:setContentSize(self.heroSize)
@@ -150,7 +153,50 @@ function BattleHero:createHeroAndMount(heroid,mountid)
     self:addChild(self.mount,2)
 
     self.body:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
+    self.body:getAnimation():regisetrFrameHandler(handler(self, self.FrameEventCallFun))
+
 end
+
+function BattleHero:getSkillarm()
+    if not self.skillarm then
+       self.skillarm = CCArmature:create(getHeroArmatureNameFromId(self.herocfg.HeroId))
+       if self.isattack then
+         self.skillarm:setScaleX(-1)
+       end
+       self.skillarm:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
+    end
+    if self.skillarm:getParent() then
+       self.skillarm:removeFromParentAndCleanup(false)
+    end
+    return self.skillarm
+end
+
+function BattleHero:getBigskillarm()
+   if not self.bigskillarm then
+       self.bigskillarm = CCArmature:create(getHeroArmatureNameFromId(self.herocfg.HeroId))
+       self.bigskillarm:getAnimation():play("ult")
+       self.bigskillarm:getAnimation():stop()
+       self.bigskillarm:setScaleX(-1)
+       self.bigskillarm:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
+   end
+end
+
+
+
+
+function BattleHero:FrameEventCallFun(bone,eventname,cid,oid)
+    
+   if eventname == "skill1"  then
+      if self.target then
+         local skillarm = self:getSkillarm()
+         self.battleScene:addChild(skillarm,1000)
+         local pos = self.target:convertToWorldSpace(ccp(self.target.mount:getPosition()))
+         skillarm:setPosition(pos)
+         skillarm:getAnimation():play("skill1",-1,-1,0)
+      end
+   end 
+end
+
 
 --设置士兵
 function BattleHero:createSoldier(soldierid)
@@ -194,10 +240,22 @@ end
 --小技能
 function BattleHero:skill()
     self.mount:getAnimation():play("attack",-1,-1,0)
-    self.body:getAnimation():play("skill1",-1,-1,0)
+    self.body:getAnimation():play("heroskill1",-1,-1,0)
     table.foreach(self.soldiers,function(i,soldier)
            soldier:getAnimation():play("attack1",-1,-1,0)
-           end)     
+           end)
+end
+
+function BattleHero:playBigskill()
+     
+     print("play utl:"..self.herocfg.HeroId,self.isattack,"beg")
+     self:pauseWalkAction(true)
+     self.mount:getAnimation():play("attack",-1,-1,0)
+     self.body:getAnimation():play("heroult",-1,-1,0)
+     table.foreach(self.soldiers,function(i,soldier)
+         soldier:getAnimation():play("attack1",-1,-1,0)  
+         end)
+
 end
 
 --大招
@@ -338,7 +396,7 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
    
    --动作完成 
    if moveevnettype == 1 or moveevnettype == 2 then
-       if movementid == "attack" or movementid == "skill1" then
+       if movementid == "attack" or movementid == "heroskill1" then
            --攻击增加气势
            self:addQishi(AttackQishiAdd)
            self:attackTarget(self.herocfg.ad)
@@ -347,9 +405,9 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
                self.state = HeroState.FINDTARGET
            end)
 
-       elseif movementid == "ult" then
+       elseif movementid == "heroult" then
            
-           print("play utl end:"..self.herocfg.HeroId,self.isattack)
+           print("play utl:"..self.herocfg.HeroId,self.isattack,"end")
            self:attackTarget(self.herocfg.ad * 10)
            self:action("stand",1)
 
@@ -361,6 +419,9 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            
        elseif movementid == "dead" then
            self:dead()
+
+       elseif movementid == "skill1" then
+           armature:removeFromParentAndCleanup(false)
        end
 
    end
@@ -453,13 +514,7 @@ function BattleHero:update(dt)
     --大招
     if self.state == HeroState.BIGSKILL then
        self.state = HeroState.NONE
-       print("play utl beg:"..self.herocfg.HeroId,self.isattack)
-       self:pauseWalkAction(true)
-       self.mount:getAnimation():play("attack",-1,-1,0)
-       self.body:getAnimation():play("ult",-1,-1,0)
-       table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():play("attack1",-1,-1,0)  
-           end)
+       self:playBigskill()
        return
     end
 
