@@ -2,6 +2,7 @@ require "extern"
 require "newbattle.HeroDataConfig"
 require "newbattle.BattleHero"
 require "newbattle.HeroButton"
+require "newbattle.BattleSoldier"
 
 function handler(target, method)
     return function(...)

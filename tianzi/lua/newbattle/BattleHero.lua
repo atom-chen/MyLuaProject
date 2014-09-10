@@ -209,11 +209,11 @@ function BattleHero:createSoldier(soldierid)
 
     for j=1,2 do
         for i=1,2 do
-            local soldier = CCArmature:create(soldierid)
+            local soldier = BattleSoldier:create(soldierid)
             soldier:setPosition(ccp(soldierPosX[i],soldierPoxY[j]))
             self:addChild(soldier,j)
             self.soldiers[(j-1) * 2 + (i - 1) + 1 ] = soldier
-            soldier:getAnimation():registerMovementHandler(handler(self, self.SoldierMovementEventCallFun))
+            
         end
     end
 end
@@ -338,16 +338,12 @@ function BattleHero:subSoldier(num)
 
 end
 
---士兵回调
-function BattleHero:SoldierMovementEventCallFun(armature,moveevnettype,movementid)
-    
-    if moveevnettype == 1 or moveevnettype == 2 then
-        if movementid == "dead" then
-           local arm = tolua.cast(armature, "CCArmature")
-           arm:setVisible(false)
-        end
-    end
+
+--获得弓箭手世界坐标攻击坐标
+function BattleHero:GetSoldierShootPoint()
+   return self:convertToWorldSpace(ccp(K_WIDTH * 2,K_HEIGHT * 1))
 end
+
 
 --返回是否死亡
 function BattleHero:subHp(attackvalue)
