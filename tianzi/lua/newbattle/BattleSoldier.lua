@@ -68,19 +68,26 @@ end
 --射箭
 function BattleSoldier:shootArrow()
       
+      local function playend(ref)
+         ref:removeFromParentAndCleanup(false)
+      end
+
       if self:getTarget() then
          local arrowarm = self:getShootArm()
          self:getWorldLayer():addChild(arrowarm,1000)
          local beginpos = self:getBeginPos()
          local shootpos = self:getShootPos()
          local endpos   = self:getTarget():GetSoldierShootPoint()
-         local action   = CCParabolyTo:create(2.0,beginpos,shootpos,endpos)  
+         local action   = CCSequence:createWithTwoActions(CCParabolyTo:create(1.0,beginpos,shootpos,endpos)
+                                                        , CCCallFuncN:create(playend))
+                        
          arrowarm:getAnimation():play("bullet",-1,-1,1)
          arrowarm:runAction(action)
       end
 
 end
 
+--获得射击骨骼
 function BattleSoldier:getShootArm()
     if not self.arrow then
        self.arrow = CCArmature:create(self.name)
