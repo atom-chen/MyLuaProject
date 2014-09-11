@@ -7,13 +7,13 @@
 			<key>s6flun-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>12</integer>
+				<integer>15</integer>
 				<key>height</key>
-				<integer>11</integer>
+				<integer>14</integer>
 				<key>originalWidth</key>
-				<integer>12</integer>
+				<integer>15</integer>
 				<key>originalHeight</key>
-				<integer>11</integer>
+				<integer>14</integer>
 				<key>x</key>
 				<integer>0</integer>
 				<key>y</key>
@@ -26,17 +26,17 @@
 			<key>s6arrow-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>12</integer>
+				<integer>15</integer>
 				<key>height</key>
-				<integer>10</integer>
+				<integer>13</integer>
 				<key>originalWidth</key>
-				<integer>12</integer>
+				<integer>15</integer>
 				<key>originalHeight</key>
-				<integer>10</integer>
+				<integer>13</integer>
 				<key>x</key>
-				<integer>14</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>16</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -45,17 +45,17 @@
 			<key>s6fire.png</key>
 			<dict>
 				<key>width</key>
-				<integer>15</integer>
+				<integer>19</integer>
 				<key>height</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>originalWidth</key>
-				<integer>15</integer>
+				<integer>19</integer>
 				<key>originalHeight</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>x</key>
-				<integer>14</integer>
+				<integer>17</integer>
 				<key>y</key>
-				<integer>12</integer>
+				<integer>0</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -64,17 +64,17 @@
 			<key>s6rod-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>21</integer>
+				<integer>26</integer>
 				<key>height</key>
-				<integer>14</integer>
+				<integer>18</integer>
 				<key>originalWidth</key>
-				<integer>21</integer>
+				<integer>26</integer>
 				<key>originalHeight</key>
-				<integer>14</integer>
+				<integer>18</integer>
 				<key>x</key>
-				<integer>31</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>31</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -83,17 +83,17 @@
 			<key>s6weapon-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>34</integer>
+				<integer>43</integer>
 				<key>height</key>
-				<integer>9</integer>
+				<integer>12</integer>
 				<key>originalWidth</key>
-				<integer>34</integer>
+				<integer>43</integer>
 				<key>originalHeight</key>
-				<integer>9</integer>
+				<integer>12</integer>
 				<key>x</key>
-				<integer>0</integer>
+				<integer>38</integer>
 				<key>y</key>
-				<integer>32</integer>
+				<integer>0</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -102,17 +102,17 @@
 			<key>s6rhand-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>height</key>
-				<integer>19</integer>
+				<integer>24</integer>
 				<key>originalWidth</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>originalHeight</key>
-				<integer>19</integer>
+				<integer>24</integer>
 				<key>x</key>
-				<integer>0</integer>
+				<integer>38</integer>
 				<key>y</key>
-				<integer>43</integer>
+				<integer>14</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -121,17 +121,17 @@
 			<key>s6head-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>20</integer>
+				<integer>25</integer>
 				<key>height</key>
-				<integer>25</integer>
+				<integer>31</integer>
 				<key>originalWidth</key>
-				<integer>20</integer>
-				<key>originalHeight</key>
 				<integer>25</integer>
+				<key>originalHeight</key>
+				<integer>31</integer>
 				<key>x</key>
-				<integer>36</integer>
+				<integer>63</integer>
 				<key>y</key>
-				<integer>16</integer>
+				<integer>14</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -140,17 +140,17 @@
 			<key>s6car-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>36</integer>
+				<integer>45</integer>
 				<key>height</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>originalWidth</key>
-				<integer>36</integer>
+				<integer>45</integer>
 				<key>originalHeight</key>
-				<integer>18</integer>
+				<integer>23</integer>
 				<key>x</key>
-				<integer>20</integer>
+				<integer>0</integer>
 				<key>y</key>
-				<integer>43</integer>
+				<integer>51</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -159,17 +159,17 @@
 			<key>s6lhand-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>11</integer>
+				<integer>14</integer>
 				<key>height</key>
-				<integer>21</integer>
+				<integer>26</integer>
 				<key>originalWidth</key>
-				<integer>11</integer>
+				<integer>14</integer>
 				<key>originalHeight</key>
-				<integer>21</integer>
+				<integer>26</integer>
 				<key>x</key>
-				<integer>58</integer>
-				<key>y</key>
 				<integer>0</integer>
+				<key>y</key>
+				<integer>76</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -178,17 +178,17 @@
 			<key>s6body-1.png</key>
 			<dict>
 				<key>width</key>
-				<integer>14</integer>
+				<integer>18</integer>
 				<key>height</key>
-				<integer>22</integer>
+				<integer>28</integer>
 				<key>originalWidth</key>
-				<integer>14</integer>
+				<integer>18</integer>
 				<key>originalHeight</key>
-				<integer>22</integer>
+				<integer>28</integer>
 				<key>x</key>
-				<integer>71</integer>
+				<integer>16</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>76</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -197,17 +197,17 @@
 			<key>s6shader.png</key>
 			<dict>
 				<key>width</key>
-				<integer>26</integer>
+				<integer>32</integer>
 				<key>height</key>
-				<integer>10</integer>
+				<integer>13</integer>
 				<key>originalWidth</key>
-				<integer>26</integer>
+				<integer>32</integer>
 				<key>originalHeight</key>
-				<integer>10</integer>
+				<integer>13</integer>
 				<key>x</key>
-				<integer>87</integer>
+				<integer>47</integer>
 				<key>y</key>
-				<integer>0</integer>
+				<integer>47</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -223,14 +223,14 @@
 			<key>realTextureFileName</key>
 			<string>soldat60.png</string>
 			<key>size</key>
-			<string>{256,256}</string>
+			<string>{128,128}</string>
 		</dict>
 		<key>texture</key>
 		<dict>
 			<key>width</key>
-			<integer>256</integer>
+			<integer>128</integer>
 			<key>height</key>
-			<integer>256</integer>
+			<integer>128</integer>
 		</dict>
 	</dict>
 </plist>

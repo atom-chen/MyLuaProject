@@ -43,6 +43,10 @@ function BattleHero:ctor()
 	self.mount = nil
   --士兵
   self.soldiers = {}
+  
+  --当前攻击士兵
+  self.curAttackIndex = 0
+
   --是否是进攻方 
   self.isattack = false
   --英雄配置
@@ -59,6 +63,9 @@ function BattleHero:ctor()
 
   self.skillarm = nil
   self.bigskillarm = nil
+  
+  --是否播放技能中
+  self.isinskill = false
      
   self.heroSize = SZ(K_HEIGHT *4, K_WIDTH *2)
   self:setContentSize(self.heroSize)
@@ -193,8 +200,19 @@ function BattleHero:FrameEventCallFun(bone,eventname,cid,oid)
          local pos = self.target:convertToWorldSpace(ccp(self.target.mount:getPosition()))
          skillarm:setPosition(pos)
          skillarm:getAnimation():play("skill1",-1,-1,0)
+         skillarm:getAnimation():registerMovementHandler(handler(self, self.SkillMovementCallFun))
       end
    end 
+end
+
+function BattleHero:SkillMovementCallFun(armature,moveevnettype,movementid)
+    
+    if moveevnettype == 1 or moveevnettype == 2 then
+       if movementid == "skill1"  then
+           self:addQishi(AttackQishiAdd)
+           self:attackTarget(self.herocfg.ad * 1.5)
+       end
+    end     
 end
 
 
@@ -212,7 +230,9 @@ function BattleHero:createSoldier(soldierid)
             local soldier = BattleSoldier:create(soldierid)
             soldier:setPosition(ccp(soldierPosX[i],soldierPoxY[j]))
             self:addChild(soldier,j)
-            self.soldiers[(j-1) * 2 + (i - 1) + 1 ] = soldier
+            local index = (j-1) * 2 + (i - 1) + 1
+            soldier.index = index
+            self.soldiers[index] = soldier
             
         end
     end
@@ -239,10 +259,12 @@ end
 
 --小技能
 function BattleHero:skill()
+
+    self.isinskill = true
     self.mount:getAnimation():play("attack",-1,-1,0)
     self.body:getAnimation():play("heroskill1",-1,-1,0)
     table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():play("attack1",-1,-1,0)
+           soldier:getAnimation():play("stand",-1,-1,1)
            end)
 end
 
@@ -253,7 +275,7 @@ function BattleHero:playBigskill()
      self.mount:getAnimation():play("attack",-1,-1,0)
      self.body:getAnimation():play("heroult",-1,-1,0)
      table.foreach(self.soldiers,function(i,soldier)
-         soldier:getAnimation():play("attack1",-1,-1,0)  
+         soldier:getAnimation():play("stand",-1,-1,1)  
          end)
 
 end
@@ -267,6 +289,7 @@ function BattleHero:bigskill()
 
     local function func()
        self.state = HeroState.BIGSKILL
+       self.isinskill = true
     end
 
     if self.isattack then
@@ -362,7 +385,7 @@ function BattleHero:subHp(attackvalue)
      self:setHpBarValue(self.hp / self.herocfg.hp * 100)
      self:createBeAttackLable(-attackvalue)
      
-     local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10 / 2)
+     local num = math.modf((self.herocfg.hp- self.hp) / self.herocfg.hp * 10 / 2.5)
      self:subSoldier(num) 
 
      self:addQishi(BeAttackQishiAdd)
@@ -373,6 +396,16 @@ function BattleHero:subHp(attackvalue)
         end
         
      end
+
+     if self.hp >0  and attackvalue >= self.herocfg.hp * 0.1 and self.isinskill then
+        self.isinskill = false 
+        print("break skill")
+        self:action("stand",1)
+        self:doNextAttack(function()
+               self.state = HeroState.FINDTARGET
+         end)
+     end
+
      return isDead
 end
 
@@ -392,19 +425,27 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
    
    --动作完成 
    if moveevnettype == 1 or moveevnettype == 2 then
-       if movementid == "attack" or movementid == "heroskill1" then
+       if movementid == "attack"  then
+          
+           self:action("stand",1)
+           self:doNextAttack(function()
+               self.state = HeroState.FINDTARGET
+                --当前士兵攻击id
+               self.curAttackIndex = 0
+           end)
+       elseif movementid == "heroskill1" then
            --攻击增加气势
-           self:addQishi(AttackQishiAdd)
-           self:attackTarget(self.herocfg.ad)
+           self.isinskill = false
            self:action("stand",1)
            self:doNextAttack(function()
                self.state = HeroState.FINDTARGET
            end)
-
        elseif movementid == "heroult" then
            
+           self.isinskill = false
+
            print("play utl:"..self.herocfg.HeroId,self.isattack,"end")
-           self:attackTarget(self.herocfg.ad * 10)
+           self:attackTarget(self.herocfg.ad * 3)
            self:action("stand",1)
 
            if not self:pauseWalkAction(false) then
@@ -692,7 +733,7 @@ function BattleHero:actionPause()
     self.mount:getAnimation():pause()
     self.body:getAnimation():pause()
     table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():pause()
+           soldier:pauseAction()
            end)
     CCDirector:sharedDirector():getActionManager():pauseTarget(self) 
     self.ispaused = true
@@ -703,7 +744,7 @@ function BattleHero:actionResume()
     self.mount:getAnimation():resume()
     self.body:getAnimation():resume()
     table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():resume()
+           soldier:resumeAction()
            end) 
     CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
      self.ispaused = false
