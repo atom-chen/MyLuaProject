@@ -24,7 +24,9 @@ HeroState = {
     --死亡
     DEAD = 5,
     --胜利
-    WIN = 6
+    WIN = 6,
+    --中断
+    BREAK = 9
 }
 
 local WalkActionTag = 9999
@@ -97,6 +99,12 @@ function BattleHero:initState(herocfg)
     self.attindex = 1
     --血量
     self.hp = herocfg.hp
+    
+    --法术伤害
+    self.ap = herocfg.ap
+    --物理伤害
+    self.ad = herocfg.ad
+
     --英雄状态
     self.state = HeroState.FINDTARGET
     -- 攻击目标
@@ -164,13 +172,14 @@ function BattleHero:createHeroAndMount(heroid,mountid)
 
 end
 
+--获得技能骨骼
 function BattleHero:getSkillarm()
     if not self.skillarm then
        self.skillarm = CCArmature:create(getHeroArmatureNameFromId(self.herocfg.HeroId))
        if self.isattack then
          self.skillarm:setScaleX(-1)
        end
-       self.skillarm:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
+       self.skillarm:getAnimation():registerMovementHandler(handler(self, self.SkillMovementCallFun))
     end
     if self.skillarm:getParent() then
        self.skillarm:removeFromParentAndCleanup(false)
@@ -178,14 +187,19 @@ function BattleHero:getSkillarm()
     return self.skillarm
 end
 
+--获得大招骨骼
 function BattleHero:getBigskillarm()
    if not self.bigskillarm then
        self.bigskillarm = CCArmature:create(getHeroArmatureNameFromId(self.herocfg.HeroId))
-       self.bigskillarm:getAnimation():play("ult")
-       self.bigskillarm:getAnimation():stop()
-       self.bigskillarm:setScaleX(-1)
-       self.bigskillarm:getAnimation():registerMovementHandler(handler(self, self.MovementEventCallFun))
+       if self.isattack then
+          self.bigskillarm:setScaleX(-1)
+       end
+       self.bigskillarm:getAnimation():registerMovementHandler(handler(self, self.SkillMovementCallFun)) 
    end
+    if self.bigskillarm:getParent() then
+       self.bigskillarm:removeFromParentAndCleanup(false)
+    end
+   return self.bigskillarm
 end
 
 
@@ -193,16 +207,59 @@ end
 
 function BattleHero:FrameEventCallFun(bone,eventname,cid,oid)
     
-   if eventname == "skill1"  then
-      if self.target then
-         local skillarm = self:getSkillarm()
-         self.battleScene:addChild(skillarm,1000)
-         local pos = self.target:convertToWorldSpace(ccp(self.target.mount:getPosition()))
-         skillarm:setPosition(pos)
-         skillarm:getAnimation():play("skill1",-1,-1,0)
-         skillarm:getAnimation():registerMovementHandler(handler(self, self.SkillMovementCallFun))
-      end
+   if not self.target then
+      return
    end 
+
+   if eventname == "skill1"  then
+       self.isinskill = false
+       local skillarm = self:getSkillarm()
+       self.battleScene:addChild(skillarm,1000)
+       local pos = self.target:convertToWorldSpace(ccp(self.target.mount:getPosition()))
+       skillarm:setPosition(pos)
+       skillarm:getAnimation():play("skill1",-1,-1,0)
+   end 
+  
+   if eventname == "ult" then
+
+       self.isinskill = false
+       local bigskillarm = self:getBigskillarm()
+       self.battleScene:addChild(bigskillarm,1000)
+       local pos = self.target:convertToWorldSpace(ccp(self.target.mount:getPosition()))
+       bigskillarm:setPosition(pos)
+       bigskillarm:getAnimation():play("ult",-1,-1,0)
+   end 
+   
+   if eventname == "skill1buff" then
+      
+      local effectarm = CCArmature:create("common")
+      self:addChild(effectarm,10)
+      effectarm:setPosition(ccp(K_SIZE*1, self.heroSize.height + 90))
+     
+      local skill = SkillConfigs[self.herocfg.skill1id]
+      if skill.bufftype == 1 then
+         
+         self.ad = self.ad + self.herocfg.ad * skill.buffvalue
+         effectarm:getAnimation():play(skill.buffname,-1,-1,1)
+         
+
+         local function skillbuffend()
+              self.ad = self.ad - self.herocfg.ad * skill.buffvalue
+              effectarm:removeFromParentAndCleanup(true)
+         end 
+        
+         local seq = CCSequence:createWithTwoActions(CCDelayTime:create(skill.time / 1000), 
+                                                     CCCallFuncN:create(skillbuffend)
+                                                     )
+         effectarm:runAction(seq)
+
+      end
+
+
+
+   end  
+  
+
 end
 
 function BattleHero:SkillMovementCallFun(armature,moveevnettype,movementid)
@@ -210,8 +267,14 @@ function BattleHero:SkillMovementCallFun(armature,moveevnettype,movementid)
     if moveevnettype == 1 or moveevnettype == 2 then
        if movementid == "skill1"  then
            self:addQishi(AttackQishiAdd)
-           self:attackTarget(self.herocfg.ad * 1.5)
+           self:attackTarget(self:getSkillAttackValue(self.herocfg.skill1id))
        end
+       
+       if movementid == "ult" then
+           print("ult sub")
+           self:attackTarget(self:getSkillAttackValue(self.herocfg.ultid))
+       end
+
     end     
 end
 
@@ -268,8 +331,10 @@ function BattleHero:skill()
            end)
 end
 
+--发大招
 function BattleHero:playBigskill()
      
+     self.isinskill = true
      print("play utl:"..self.herocfg.HeroId,self.isattack,"beg")
      self:pauseWalkAction(true)
      self.mount:getAnimation():play("attack",-1,-1,0)
@@ -289,7 +354,6 @@ function BattleHero:bigskill()
 
     local function func()
        self.state = HeroState.BIGSKILL
-       self.isinskill = true
     end
 
     if self.isattack then
@@ -329,8 +393,20 @@ function BattleHero:normalAttack()
    if self.attindex > string.len(self.herocfg.attackmode) then
        self.attindex = 1
    end
+    
+end
+
+
+function BattleHero:breakAction()
+
+   self.mount:getAnimation():play("stand",-1,-1,1)
+   self.body:getAnimation():play("break",-1,-1,0)
+   table.foreach(self.soldiers,function(i,soldier)
+         soldier:getAnimation():play("stand",-1,-1,1)  
+         end)
 
 end
+
 
 --添加气势
 function BattleHero:addQishi(qishiadd)
@@ -400,11 +476,7 @@ function BattleHero:subHp(attackvalue)
      if self.hp >0  and attackvalue >= self.herocfg.hp * 0.1 and self.isinskill then
         self.isinskill = false 
         print("break skill")
-        self:createBreakLabel()
-        self:action("stand",1)
-        self:doNextAttack(function()
-               self.state = HeroState.FINDTARGET
-         end)
+        self.state = HeroState.BREAK
      end
 
      return isDead
@@ -436,7 +508,7 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            end)
        elseif movementid == "heroskill1" then
            --攻击增加气势
-           self.isinskill = false
+          
            self:action("stand",1)
            self:doNextAttack(function()
                self.state = HeroState.FINDTARGET
@@ -446,7 +518,6 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
            self.isinskill = false
 
            print("play utl:"..self.herocfg.HeroId,self.isattack,"end")
-           self:attackTarget(self.herocfg.ad * 3)
            self:action("stand",1)
 
            if not self:pauseWalkAction(false) then
@@ -460,6 +531,13 @@ function BattleHero:MovementEventCallFun(armature,moveevnettype,movementid)
 
        elseif movementid == "skill1" then
            armature:removeFromParentAndCleanup(false)
+       
+       --中断
+       elseif movementid == "break" then
+           self:action("stand",1)
+           self:doNextAttack(function()
+                 self.state = HeroState.FINDTARGET
+            end)
        end
 
    end
@@ -554,6 +632,13 @@ function BattleHero:update(dt)
        self.state = HeroState.NONE
        self:playBigskill()
        return
+    end
+    
+    --中断
+    if self.state == HeroState.BREAK then
+       self.state = HeroState.NONE
+       self:breakAction()
+       self:createBreakLabel()
     end
 
 end
@@ -706,11 +791,15 @@ function BattleHero:createBeAttackLable(value)
      if value >= 0 then
         label = CCLabelBMFont:create(string.format("%+d",value),P("fonts/greenfont.fnt"))
       else
-        label = CCLabelBMFont:create(string.format("%+d",value),P("fonts/redfont.fnt"))
+        label = CCLabelBMFont:create(string.format("%+d",value),P("fonts/redfont.fnt"),16)
      end   
      self:addChild(label,100)
+
+     label:setScale(0.5)
+
      if self.isattack then
-        label:setScaleX(-1)
+        local scale = label:getScaleX()
+        label:setScaleX(-1 * scale)
      end
      label:setPosition(ccp(K_SIZE*1, self.heroSize.height + 90))
 
@@ -747,9 +836,7 @@ function BattleHero:createBreakLabel()
 
      local arr = CCArray:create()
      arr:addObject(CCFadeIn:create(0.2))
-     arr:addObject(CCSpawn:createWithTwoActions(CCMoveBy:create(0.8, ccp(0,80)),
-                                                CCFadeOut:create(0.8)
-                   ))
+     arr:addObject(CCFadeOut:create(0.8))
      arr:addObject(CCCallFuncN:create(callback))
      local seq = CCSequence:create(arr)
      label:runAction(seq)
@@ -763,6 +850,13 @@ function BattleHero:actionPause()
            soldier:pauseAction()
            end)
     CCDirector:sharedDirector():getActionManager():pauseTarget(self) 
+    if self.skillarm then
+       self.skillarm:getAnimation():pause()
+    end
+    if self.bigskillarm then
+       self.bigskillarm:getAnimation():pause()
+    end
+
     self.ispaused = true
 end
 
@@ -774,6 +868,12 @@ function BattleHero:actionResume()
            soldier:resumeAction()
            end) 
     CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
+    if self.skillarm then
+       self.skillarm:getAnimation():pause()
+    end
+    if self.bigskillarm then
+       self.bigskillarm:getAnimation():pause()
+    end
      self.ispaused = false
 end
 
@@ -803,4 +903,19 @@ function BattleHero:pauseWalkAction(isPause)
        return true
     end 
     return false
+end
+
+--获得普通攻击值
+function BattleHero:getNormalAttackValue()
+   return self.ap + self.ad
+end
+
+
+--获得技能攻击值
+function BattleHero:getSkillAttackValue(skillid)
+   local skill = SkillConfigs[skillid]
+   if skill.type == 1 or skill.type == 2 then
+      return skill.damage + self.ap*skill.apadd + self.ad*skill.apadd
+   end
+   return 0
 end

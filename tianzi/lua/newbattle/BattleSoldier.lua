@@ -93,7 +93,7 @@ function BattleSoldier:shootArrow()
       local function playend(ref)  
          if self:getBattleHero().curAttackIndex == self.index then
             self:getBattleHero():addQishi(AttackQishiAdd)
-            self:getBattleHero():attackTarget(self:getBattleHero().herocfg.ad)
+            self:getBattleHero():attackTarget(self:getBattleHero():getNormalAttackValue())
          end 
          ref:removeFromParentAndCleanup(false)
       end

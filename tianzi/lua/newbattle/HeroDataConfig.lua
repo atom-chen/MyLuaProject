@@ -12,29 +12,28 @@ KillQishiAdd = 300
 
 MaxQishi = 1000
 
+--英雄配置
 HeroConfigs = {
-	[1]   = {HeroId = 1,SoldierId=1,Mount="mount88001",Siteid=100,ad=80,hp=810 * 2,attackspeed=2000,movespeed=400,attackmode="1112"},
-	[2]   = {HeroId = 2,SoldierId=2,Mount="mount88002",Siteid=102,ad=75,hp=750 * 2,attackspeed=1800,movespeed=500,attackmode="1212"},
-	[151] = {HeroId = 151,SoldierId=3,Mount="mount88004",Siteid=302,ad=110,hp=500 * 2,attackspeed=2300,movespeed=1100,attackmode="121112"},
-    [153] = {HeroId = 153,SoldierId=4,Mount="mount88005",Siteid=205,ad=115,hp=700 * 2,attackspeed=1700,movespeed=750,attackmode="11212"},
-    [155] = {HeroId = 155,SoldierId=5,Mount="mount88006",Siteid=301,ad=95,hp=450 * 2,attackspeed=2200,movespeed=1010,attackmode="112"},
-    [177] = {HeroId = 177,SoldierId=6,Mount="mount88007",Siteid=206,ad=98,hp=750 * 2,attackspeed=1500,movespeed=800,attackmode="1112"}
-}  
+	[1]   = {HeroId = 1,SoldierId=1,Mount="mount88001",skill1id=20001,ultid=10001,Siteid=100,ad=80,ap=80,hp=2620,attackspeed=2000,movespeed=400,attackmode="1122"},
+	[2]   = {HeroId = 2,SoldierId=2,Mount="mount88002",skill1id=20002,ultid=10002,Siteid=102,ad=75,ap=75,hp=2500,attackspeed=1800,movespeed=500,attackmode="1212"},
+	[151] = {HeroId = 151,SoldierId=3,Mount="mount88004",skill1id=20003,ultid=10003,Siteid=302,ad=110,ap=100,hp=2000,attackspeed=2300,movespeed=1100,attackmode="121112"},
+  [153] = {HeroId = 153,SoldierId=4,Mount="mount88005",skill1id=20004,ultid=10004,Siteid=205,ad=115,ap=115,hp=2400,attackspeed=1700,movespeed=750,attackmode="11212",skill1id=20001,ultid=10001},
+  [155] = {HeroId = 155,SoldierId=5,Mount="mount88006",skill1id=20001,ultid=10001,Siteid=301,ad=95,ap=95,hp=1900,attackspeed=2200,movespeed=1010,attackmode="112",skill1id=20001,ultid=10001},
+  [177] = {HeroId = 177,SoldierId=6,Mount="mount88007",skill1id=20001,ultid=10001,Siteid=206,ad=98,ap=98,hp=2500,attackspeed=1500,movespeed=800,attackmode="1112",skill1id=20001,ultid=10001}
+} 
 
-SmallGrid = {
-	[1] = ccp(K_WIDTH * 3 ,K_HEIGHT*2),
-	[2] = ccp(K_WIDTH * 3 ,K_HEIGHT*4),
-	[3] = ccp(K_WIDTH * (3 + 4), K_HEIGHT*2),
-	[4] = ccp(K_WIDTH * (3 + 4), K_HEIGHT*4),
-	[5] = ccp(K_WIDTH * (3 + 4*2), K_HEIGHT*2),
-	[6] = ccp(K_WIDTH * (3 + 4*2), K_HEIGHT*4),
-	[7] = ccp(K_WIDTH * (12 + 1), K_HEIGHT*2),
-	[8] = ccp(K_WIDTH * (12 + 1) ,K_HEIGHT*4),
-	[9]	= ccp(K_WIDTH *  (12 + 4*1 + 1), K_HEIGHT*2),
-	[10] = ccp(K_WIDTH * (12 + 4*1 + 1), K_HEIGHT*4),
-	[11] = ccp(K_WIDTH * (12 + 4*2 + 1),K_HEIGHT*2),
-	[12] = ccp(K_WIDTH * (12 + 4*2 + 1), K_HEIGHT*4)
+--技能配置
+SkillConfigs = {
+    [10001] = {id=10001,type=1,damage=330,apadd=0.6,adadd=0,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [10002] = {id=10002,type=2,damage=320,apadd=0,adadd=0.7,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [20001] = {id=20001,type=1,damage=230,apadd=0.7,adadd=0,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [20002] = {id=20002,type=2,damage=220,apadd=0,adadd=0.8,hitrate=100,time=5000,bufftype=1,buffvalue=0.3,buffname="power"},
+    [10003] = {id=10003,type=2,damage=360,apadd=0.8,adadd=0,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [20003] = {id=20003,type=1,damage=250,apadd=0,adadd=0.5,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [10004] = {id=10004,type=1,damage=250,apadd=0,adadd=0.6,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""},
+    [20004] = {id=20004,type=2,damage=460,apadd=0.8,adadd=0,hitrate=100,time=0,bufftype=0,buffvalue=0,buffname=""}
 }
+
 
 SmallOne = {
 	[1] = {x=3,y=3}
@@ -82,7 +81,7 @@ SoldierShootTime = {
 
 --攻击列表
 --AttackList = {HeroConfigs[2],HeroConfigs[1],HeroConfigs[151],HeroConfigs[153],HeroConfigs[177]}
-AttackList = {HeroConfigs[1],HeroConfigs[151]}
+AttackList = {HeroConfigs[1],HeroConfigs[1],HeroConfigs[2]}
 --防守列表
 --DefendList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[177]}
-DefendList = {HeroConfigs[1],HeroConfigs[151]}
+DefendList = {HeroConfigs[151],HeroConfigs[151],HeroConfigs[153]}

@@ -482,13 +482,13 @@
 			<key>h1rhand153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>24</integer>
+				<integer>23</integer>
 				<key>height</key>
-				<integer>30</integer>
+				<integer>29</integer>
 				<key>originalWidth</key>
-				<integer>24</integer>
+				<integer>23</integer>
 				<key>originalHeight</key>
-				<integer>30</integer>
+				<integer>29</integer>
 				<key>x</key>
 				<integer>0</integer>
 				<key>y</key>
@@ -501,13 +501,13 @@
 			<key>153_990005.png</key>
 			<dict>
 				<key>width</key>
-				<integer>120</integer>
+				<integer>119</integer>
 				<key>height</key>
-				<integer>80</integer>
+				<integer>79</integer>
 				<key>originalWidth</key>
-				<integer>120</integer>
+				<integer>119</integer>
 				<key>originalHeight</key>
-				<integer>80</integer>
+				<integer>79</integer>
 				<key>x</key>
 				<integer>768</integer>
 				<key>y</key>
@@ -520,13 +520,13 @@
 			<key>h1rarm153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>28</integer>
+				<integer>27</integer>
 				<key>height</key>
-				<integer>40</integer>
+				<integer>39</integer>
 				<key>originalWidth</key>
-				<integer>28</integer>
+				<integer>27</integer>
 				<key>originalHeight</key>
-				<integer>40</integer>
+				<integer>39</integer>
 				<key>x</key>
 				<integer>643</integer>
 				<key>y</key>
@@ -539,15 +539,15 @@
 			<key>h1head153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>36</integer>
+				<integer>35</integer>
 				<key>height</key>
 				<integer>37</integer>
 				<key>originalWidth</key>
-				<integer>36</integer>
+				<integer>35</integer>
 				<key>originalHeight</key>
 				<integer>37</integer>
 				<key>x</key>
-				<integer>673</integer>
+				<integer>672</integer>
 				<key>y</key>
 				<integer>316</integer>
 				<key>offsetX</key>
@@ -558,17 +558,17 @@
 			<key>h1body153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>40</integer>
+				<integer>39</integer>
 				<key>height</key>
-				<integer>56</integer>
+				<integer>55</integer>
 				<key>originalWidth</key>
-				<integer>40</integer>
+				<integer>39</integer>
 				<key>originalHeight</key>
-				<integer>56</integer>
+				<integer>55</integer>
 				<key>x</key>
 				<integer>643</integer>
 				<key>y</key>
-				<integer>358</integer>
+				<integer>357</integer>
 				<key>offsetX</key>
 				<real>0</real>
 				<key>offsetY</key>
@@ -577,13 +577,13 @@
 			<key>h1lhand153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>26</integer>
+				<integer>25</integer>
 				<key>height</key>
-				<integer>38</integer>
+				<integer>37</integer>
 				<key>originalWidth</key>
-				<integer>26</integer>
+				<integer>25</integer>
 				<key>originalHeight</key>
-				<integer>38</integer>
+				<integer>37</integer>
 				<key>x</key>
 				<integer>893</integer>
 				<key>y</key>
@@ -596,15 +596,15 @@
 			<key>h1leg153.png</key>
 			<dict>
 				<key>width</key>
-				<integer>28</integer>
+				<integer>27</integer>
 				<key>height</key>
-				<integer>34</integer>
+				<integer>33</integer>
 				<key>originalWidth</key>
-				<integer>28</integer>
+				<integer>27</integer>
 				<key>originalHeight</key>
-				<integer>34</integer>
+				<integer>33</integer>
 				<key>x</key>
-				<integer>26</integer>
+				<integer>25</integer>
 				<key>y</key>
 				<integer>474</integer>
 				<key>offsetX</key>

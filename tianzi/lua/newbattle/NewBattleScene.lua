@@ -103,6 +103,7 @@ function NewBattleScene:loadArmature()
 	adm:addArmatureFileInfo(P("hero/hero153/hero153.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero155/hero155.ExportJson"))
 	adm:addArmatureFileInfo(P("hero/hero177/hero177.ExportJson"))
+  adm:addArmatureFileInfo(P("hero/common/common.ExportJson"))
 	
 	adm:addArmatureFileInfo(P("mount/mount88001_1/mount88001.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88002_1/mount88002.ExportJson"))
@@ -110,6 +111,8 @@ function NewBattleScene:loadArmature()
 	adm:addArmatureFileInfo(P("mount/mount88005_1/mount88005.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88006_1/mount88006.ExportJson"))
 	adm:addArmatureFileInfo(P("mount/mount88007_1/mount88007.ExportJson"))
+
+    
 
 	self:createLayer()
 	self:createHero()
