@@ -869,10 +869,10 @@ function BattleHero:actionResume()
            end) 
     CCDirector:sharedDirector():getActionManager():resumeTarget(self) 
     if self.skillarm then
-       self.skillarm:getAnimation():pause()
+       self.skillarm:getAnimation():resume()
     end
     if self.bigskillarm then
-       self.bigskillarm:getAnimation():pause()
+       self.bigskillarm:getAnimation():resume()
     end
      self.ispaused = false
 end
