@@ -11,6 +11,47 @@ function handler(target, method)
     end
 end 
 
+function clone(object)
+    local lookup_table = {}
+    local function _copy(object)
+        if type(object) ~= "table" then
+            return object
+        elseif lookup_table[object] then
+            return lookup_table[object]
+        end
+        local new_table = {}
+        lookup_table[object] = new_table
+        for key, value in pairs(object) do
+            new_table[_copy(key)] = _copy(value)
+        end
+        return setmetatable(new_table, getmetatable(object))
+    end
+    return _copy(object)
+end
+
+-- 获取基类的某个方法
+-- table C++类或者lua table
+-- methodName 函数名，也可以是成员变量名
+-- return 基类的函数或成员变量值（如果methodName为变量名）
+--          nil 表示找不到
+function getSuperMethod(table, methodName)
+    local mt = getmetatable(table)
+    local method = nil
+    while mt and not method do
+        method = mt[methodName]
+        if not method then
+            local index = mt.__index
+            if index and type(index) == "function" then
+                method = index(mt, methodName)
+            elseif index and type(index) == "table" then
+                method = index[methodName]
+            end
+        end
+        mt = getmetatable(mt)
+    end
+    return method
+end
+
 NewBattleScene = class("NewBattleScene",function()
     return CCScene:create()	
 end) 
