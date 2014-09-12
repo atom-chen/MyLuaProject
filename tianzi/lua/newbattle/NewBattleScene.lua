@@ -3,6 +3,7 @@ require "newbattle.HeroDataConfig"
 require "newbattle.BattleHero"
 require "newbattle.HeroButton"
 require "newbattle.BattleSoldier"
+require "newbattle.BattleHero2"
 
 function handler(target, method)
     return function(...)

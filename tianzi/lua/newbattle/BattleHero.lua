@@ -264,7 +264,7 @@ function BattleHero:skill()
     self.mount:getAnimation():play("attack",-1,-1,0)
     self.body:getAnimation():play("heroskill1",-1,-1,0)
     table.foreach(self.soldiers,function(i,soldier)
-           soldier:getAnimation():play("stand",-1,-1,1)
+           soldier:getAnimation():play("attack2",-1,-1,1)
            end)
 end
 
@@ -275,7 +275,7 @@ function BattleHero:playBigskill()
      self.mount:getAnimation():play("attack",-1,-1,0)
      self.body:getAnimation():play("heroult",-1,-1,0)
      table.foreach(self.soldiers,function(i,soldier)
-         soldier:getAnimation():play("stand",-1,-1,1)  
+         soldier:getAnimation():play("attack2",-1,-1,1)  
          end)
 
 end
@@ -400,6 +400,7 @@ function BattleHero:subHp(attackvalue)
      if self.hp >0  and attackvalue >= self.herocfg.hp * 0.1 and self.isinskill then
         self.isinskill = false 
         print("break skill")
+        self:createBreakLabel()
         self:action("stand",1)
         self:doNextAttack(function()
                self.state = HeroState.FINDTARGET
@@ -720,8 +721,34 @@ function BattleHero:createBeAttackLable(value)
 
      local arr = CCArray:create()
      arr:addObject(CCFadeIn:create(0.2))
-     arr:addObject(CCSpawn:createWithTwoActions(CCMoveBy:create(0.6, ccp(0,50)),
-                                                CCFadeOut:create(0.6)
+     arr:addObject(CCSpawn:createWithTwoActions(CCMoveBy:create(0.8, ccp(0,80)),
+                                                CCFadeOut:create(0.8)
+                   ))
+     arr:addObject(CCCallFuncN:create(callback))
+     local seq = CCSequence:create(arr)
+     label:runAction(seq)
+end
+
+--打断标签
+function BattleHero:createBreakLabel()
+
+
+     local label = CCLabelBMFont:create("打断!",P("fonts/break.fnt"))
+     self:addChild(label,100)
+     if self.isattack then
+        label:setScaleX(-1)
+     end
+     label:setPosition(ccp(K_SIZE*1, self.heroSize.height + 90))
+
+     local function callback(item)
+         self:removeChild(item, true)
+     end
+     
+
+     local arr = CCArray:create()
+     arr:addObject(CCFadeIn:create(0.2))
+     arr:addObject(CCSpawn:createWithTwoActions(CCMoveBy:create(0.8, ccp(0,80)),
+                                                CCFadeOut:create(0.8)
                    ))
      arr:addObject(CCCallFuncN:create(callback))
      local seq = CCSequence:create(arr)
