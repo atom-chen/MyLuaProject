@@ -80,7 +80,7 @@ function main()
 	require "newbattle.NewBattleScene"
 	local sceneGame = NewBattleScene.new()
 	runningScene = CCDirector:sharedDirector():getRunningScene()
-
+   
 	if runningScene == nil then
 		CCDirector:sharedDirector():runWithScene(sceneGame)
 	else

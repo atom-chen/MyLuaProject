@@ -81,7 +81,8 @@ SoldierShootTime = {
 
 --攻击列表
 --AttackList = {HeroConfigs[2],HeroConfigs[1],HeroConfigs[151],HeroConfigs[153],HeroConfigs[177]}
-AttackList = {HeroConfigs[1],HeroConfigs[1],HeroConfigs[2]}
+AttackList = {HeroConfigs[1],HeroConfigs[2]}
 --防守列表
 --DefendList = {HeroConfigs[1],HeroConfigs[2],HeroConfigs[151],HeroConfigs[153],HeroConfigs[177]}
-DefendList = {HeroConfigs[151],HeroConfigs[151],HeroConfigs[153]}
+DefendList = {HeroConfigs[151],HeroConfigs[153]}
+
